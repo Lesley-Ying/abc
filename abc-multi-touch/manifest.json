@@ -1,0 +1,14 @@
+{
+  "name": "lalala",
+  "icons": [
+    {
+      "src": "assets/111.jpg",
+      "type": "image/png",
+      "sizes": "512x512",
+      "background_color": "#f0fbff"
+      
+    }
+  ],
+  "orientation": "Natural",
+  "display": "standalone"
+}

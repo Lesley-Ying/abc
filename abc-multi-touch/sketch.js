@@ -35,9 +35,10 @@ function draw() {
   }
   if(!yes){
     image(door,width/2,height/2,windowWidth,windowHeight)
-  }else{
-    image(door2,width/2,height/2,windowWidth,windowHeight)
   }
+  // }else{
+  //   image(door2,width/2,height/2,windowWidth,windowHeight)
+  // }
   if(yes&&!doorOpened){
     doorOpen.play();
     doorOpened=true;

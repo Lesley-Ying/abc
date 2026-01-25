@@ -14,7 +14,7 @@ knock=loadSound("assets/knock.mp3");
 knockEffect=loadImage("assets/effect.png");
 doorOpen=loadSound("assets/open.wav");
 door=loadImage("assets/doorC.jpg");
-door2=loadImage("assets/doorOpen.png");
+//door2=loadImage("assets/doorOpen.png");
 
 
 }

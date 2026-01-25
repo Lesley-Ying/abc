@@ -58,7 +58,7 @@ function draw() {
 function touchStarted() {
   touched=true;
  let volume=map(touches.length,1,5,0.01,1);
-  console.log(touches);
+  //console.log(touches);
   knock.setVolume(volume);
   if(!yes){
   knock.play();

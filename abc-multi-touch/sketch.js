@@ -42,7 +42,7 @@ function draw() {
     doorOpen.play();
     doorOpened=true;
   }
-  if(touched){
+  if(touched&&!yes){
   for(let i=0; i<touches.length; i++){
     image(knockEffect,touches[i].x, touches[i].y-20,150,150)
   }

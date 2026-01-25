@@ -1,28 +1,72 @@
+let knock;
+let door;
+let door2;
+let knockEffect;
+let knockCount=0;
+let yes=false;
+let doorOpened=false;
+let touchX;
+let touchY;
+let touched=false;
+
+function preload(){
+knock=loadSound("assets/knock.mp3");
+knockEffect=loadImage("assets/effect.png");
+doorOpen=loadSound("assets/open.wav");
+door=loadImage("assets/doorC.jpg");
+door2=loadImage("assets/doorO.png");
+
+
+}
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("p5-canvas-container");
-  //background("pink");
+  
+  
 }
 
 function draw() {
   
-  background("pink");
+  background(0);
   fill(0);
-  circle(width/2-130*sin(frameCount*0.1), height/2+130*cos(frameCount*0.1), 100);
-
+  imageMode(CENTER);
+  if(knockCount>80){
+    yes=true;
+  }
+  if(!yes){
+    image(door,width/2,height/2,windowWidth,windowHeight)
+  }else{
+    image(door2,width/2,height/2,windowWidth,windowHeight)
+  }
+  if(yes&&!doorOpened){
+    doorOpen.play();
+    doorOpened=true;
+  }
+  if(touched){
+  for(let i=0; i<touches.length; i++){
+    image(knockEffect,touches[i].x, touches[i].y-20,150,150)
+  }
+  touched=false;
+}
+  
+ 
 }
 
 // P5 touch events: https://p5js.org/reference/#Touch
 
 function touchStarted() {
+  touched=true;
+ let volume=map(touches.length,1,5,0.01,1);
   console.log(touches);
-  
-  
-  for(let i=0; i<touches.length; i++){
-    let x=touches[i].x;
-    let y=touches[i].y;
-    circle(x,y,100);
+  knock.setVolume(volume);
+  if(!yes){
+  knock.play();
   }
+  
+  knockCount++;
+  
+  
+  
 }
 
 function touchMoved() {

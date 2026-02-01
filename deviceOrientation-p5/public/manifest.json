@@ -1,0 +1,12 @@
+{
+  "name": "sanitized kitchen",
+  "icons": [
+    {
+      "src": "assets/icon.jpg",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "orientation": "Natural",
+  "display": "standalone"
+}

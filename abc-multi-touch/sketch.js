@@ -30,6 +30,7 @@ function draw() {
   background(0);
   fill(0);
   imageMode(CENTER);
+  
   if(knockCount>80){
     yes=true;
   }
@@ -41,6 +42,7 @@ function draw() {
   // }
   if(yes&&!doorOpened){
     doorOpen.play();
+    
     doorOpened=true;
   }
   if(touched&&!yes){

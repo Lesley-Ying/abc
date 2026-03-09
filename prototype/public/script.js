@@ -5,6 +5,7 @@ if (location.hostname.toLowerCase().startsWith('browsercircus') || location.host
 } else {
     socket = io();
 }
+
 // let readyButton = document.querySelector("#ready");
 //let mainWrapper = document.querySelector(".main-wrapper")
 

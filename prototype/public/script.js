@@ -1,7 +1,7 @@
 
 let socket;
 if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
-    socket = io({ path: "/Lesley/4290/socket.io" });
+    socket = io({ path: "/lesley/port-4290/socket.io" });
 } else {
     socket = io();
 }

@@ -1,8 +1,8 @@
 {
-  "name": "XXX",
+  "name": "Nothing",
   "icons": [
     {
-      "src": "assets/512.png",
+      "src": "assets/iconimg.jpg",
       "type": "image/png",
       "sizes": "512x512"
     }

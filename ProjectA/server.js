@@ -50,7 +50,7 @@ io.on('connection', (socket) => {
             soundCounter++;
             let candleData = { id: socket.id, soundIdx: soundIdx, betaReady: false };
             candles.push(candleData);
-            socket.emit("role", "candle", { soundIdx });
+            socket.emit("role", "candle", {soundIdx});
             if (fire) io.to(fire).emit("new-candle", candleData);
         }
     });
@@ -74,13 +74,13 @@ io.on('connection', (socket) => {
     socket.on("ignite-candle", function (data) {
         //get the data(for this version, all candles at once)
         const candleId = data.id;
-        //find those candles whose sound index are 2(sound3), give them a special meltRate
         let candle = candles.find(c => c.id === candleId);
         let meltRate = 0.31;
-        if (candle.soundIdx == 2) {
+        //find those candles whose sound index are 2(sound3), give them a special meltRate
+        if (candle&&candle.soundIdx == 2) {
             meltRate = 0.22;
         }
-        io.to(candleId).emit("burn", { meltRate});
+        io.to(candleId).emit("burn", {meltRate});
     });
 
     socket.on("disconnect", function () {

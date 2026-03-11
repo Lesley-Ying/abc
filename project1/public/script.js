@@ -1,9 +1,3 @@
-//change the button logic:for both the candle and the fire sides, display a black page with a "start" button before showing anything, after click, show things
-//add instruction on the candle side: 竖起来
-//add gyroscope logic to the candle side: candles only show up on the fire and side if lift up; gyroscope scope:beta 70-100;
-//candles only show up on the fire side if lift up
-//candles disaapear from rhe screen
-
 let socket;
 if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
     socket = io({ path: "/lesley/port-4290/socket.io" });
@@ -11,11 +5,7 @@ if (location.hostname.toLowerCase().startsWith('browsercircus') || location.host
     socket = io();
 }
 
-// let readyButton = document.querySelector("#ready");
-//let mainWrapper = document.querySelector(".main-wrapper")
-
 let myRole = null;
-//gyroscope
 let alpha = 0, beta = 0, gamma = 0;
 let fireX, fireY;
 let velX = 0, velY = 0;
@@ -32,9 +22,19 @@ let smokeFrame = 0;
 let asciiChars = " .:-=+*#%@";
 let cols = 80, rows = 100;
 let base_y;
-let sound1;
-let sounds=[];
-let currentSound=null;
+let sounds = [];
+let currentSound = null;
+let mySoundIdx = 0;
+let started = false;          // after clicking start button
+let betaReady = false;        // beta in 70-100 range
+let fireVisible = false;      // fire is being displayed
+let fireFellOffScreen = false;// fire has fallen off
+let audioStarted = false;     // candle audio playing
+let candleVisible = false;    // candle visible on candle side
+let allCandlesReady = false;  // server told us all candles are ready
+let fireDisplayTimer = 0;     // frameCount when fire became visible
+let fireDropping = false;     // fire is in drop phase (after 3s)
+let fireDropY = 0;
 
 
 function handleOrientation(eventData) {
@@ -42,64 +42,63 @@ function handleOrientation(eventData) {
     beta = eventData.beta;
     gamma = eventData.gamma;
 }
-
 //get role from server
 socket.emit("request-role");
 
-socket.on("role", function (data) {
+socket.on("role", function (data, extra) {
     myRole = data;
-    if (data == "fire") {
+
+    if (data === "fire") {
         console.log("I am fire");
-        //request button
-        document.querySelector('#requestOrientationButton').style.display = "block";
-        //add new candle on fire's side
+        //not used
         socket.on("new-candle", function (candle) {
             addCandleToFire(candle.id);
         });
-        //old fire disconnect, new fire log on
         socket.on("existing-candles", function (data) {
             for (let i = 0; i < data.length; i++) {
-                let candle = data[i];
-                addCandleToFire(candle.id);
+                addCandleToFire(data[i].id);
             }
         });
         socket.on("remove-candle", function (data) {
             removeCandleFromFire(data.id);
         });
+        socket.on("all-candles-ready", function (data) {
+            allCandlesReady = data.ready;
+        });
 
     } else if (data == "candle") {
         console.log("I am a candle");
-        //request button
-        document.querySelector('#requestOrientationButton').style.display = "block";
+        if (extra && extra.soundIdx !== undefined) {
+            mySoundIdx = extra.soundIdx;
+        }
 
-        //background brightness?
         socket.on("warm-up", function (data) {
-            if (!isBurning) {
-                warmBrightness = data.brightness;
-            }
+            if (!isBurning) warmBrightness = data.brightness;
         });
-        //add fire to the candle side
-        socket.on("burn", function () {
+        socket.on("burn", function (data) {
             if (!isBurning) {
                 isBurning = true;
-                meltRate = 0.35;
+                meltRate = data.meltRate;
                 warmBrightness = 0;
             }
-            //start a random sound
-            currentSound = random(sounds); 
-            currentSound.setLoop(true);
-            currentSound.play();
-           
-            console.log("burn")
+            if (!audioStarted && sounds.length > 0) {
+                audioStarted = true;
+                currentSound = sounds[mySoundIdx % sounds.length];
+                currentSound.setLoop(true);
+                currentSound.play();
+                //console.log("audio started, idx:", mySoundIdx);
+
+            }
+
         });
+
     }
 });
 
 function addCandleToFire(candleId) {
     let x = random(300, width - 300);
     let y = random(300, height - 300);
-    let wickOffset = 100;
-    candlesOnFireSide[candleId] = { id: candleId, x, y, wickOffset, nearness: 0 };
+    candlesOnFireSide[candleId] = { id: candleId, x, y, nearness: 0 };
 }
 function removeCandleFromFire(candleId) {
     delete candlesOnFireSide[candleId];
@@ -113,104 +112,155 @@ function preload() {
     sounds.push(loadSound("assets/sound5.mp3"));
     sounds.push(loadSound("assets/sound6.mp3"));
     sounds.push(loadSound("assets/sound7.mp3"));
-
-    
 }
+
 function setup() {
     let canvas = createCanvas(windowWidth, windowHeight);
     canvas.parent('p5-container');
     frameRate(14);
     textFont('Courier New');
     textSize(8);
-    //big fire center
     fireX = width / 2;
     fireY = height / 2;
+    fireDropY = fireY;
     candleHeight = maxCandleHeight;
-    //bottom line for candle
     base_y = rows - 10;
+
+    // build start button overlay
+    let overlay = document.createElement('div');
+    overlay.id = 'start-overlay';
+    overlay.style.cssText = `
+        position:fixed; top:0; left:0; width:100%; height:100%;
+        background:#000; display:flex; align-items:center; justify-content:center;
+        z-index:999;
+    `;
+    let btn = document.createElement('button');
+    btn.innerText = 'start';
+    btn.style.cssText = `
+        background:none; border:1px solid #fff; color:#fff;
+        font-family:'Courier New',monospace; font-size:18px;
+        padding:14px 40px; cursor:pointer; letter-spacing:4px;
+    `;
+    btn.addEventListener('click', function () {
+        userStartAudio();
+        requestOrientation();
+        overlay.style.display = 'none';
+        started = true;
+    });
+    overlay.appendChild(btn);
+    document.body.appendChild(overlay);
 }
 
 function draw() {
-    //blendMode(SCREEN);
+    blendMode(BLEND);
     background(0);
+    blendMode(SCREEN);
+    if (!started) return;
+
     if (myRole == "fire") {
         drawFireRole();
     } else if (myRole == "candle") {
         drawCandleRole();
     }
-    //test bug
-    // } else {
+}
+
+function drawFireRole() {
+    if (fireFellOffScreen) return;
+    // check beta
+    // let inRange = (beta >= 70 && beta <= 100);
+    // if (!inRange) {
+    //     // show "await you"
     //     fill(80);
     //     textSize(14);
     //     textAlign(CENTER, CENTER);
-    //     text("connecting", width / 2, height / 2);
-    // }
-}
-
-
-function drawFireRole() {
-    //use gyroscope to control
-    let targetVX = map(constrain(gamma, -45, 45), -45, 45, -18, 18);
-    let targetVY = map(constrain(beta, -45, 45), -45, 45, -18, 18);
-    //some resistance
-    velX = lerp(velX, targetVX, 0.2);
-    velY = lerp(velY, targetVY, 0.2);
-    fireX = constrain(fireX + velX, 40, width - 40);
-    fireY = constrain(fireY + velY, 110, height - 40);
-
-    for (let id in candlesOnFireSide) {
-        let c = candlesOnFireSide[id];
-        let d = dist(fireX, fireY, c.x, c.y);
-
-        //map distance to nearness, further be used to play with warmbrightness
-        let n = map(d, 0, warmDistance, 1, 0);
-        //constrain in case turns negative
-        c.nearness = constrain(n, 0, 1);
-
-        // ignite: distance to wick tip (higher wickOffset = wick is lower = harder to reach)
-        let wickY = c.y - c.wickOffset;
-        let dWick = dist(fireX, fireY, c.x, wickY);
-
-        if (dWick < igniteDistance) {
-            socket.emit("ignite-candle", { id });
-            delete candlesOnFireSide[id];
-            //continue;
-        }
-        drawCandleAscii(c.x, c.y, c.nearness);
-    }
-
-    //if (frameCount % 7 === 0) {
-    for (let id in candlesOnFireSide) {
-        let c = candlesOnFireSide[id];
-        let d = dist(fireX, fireY, c.x, c.y);
-        let brightness;
-        if (d < warmDistance) {
-            brightness = c.nearness;
-        } else {
-            //too far--no heating effect
-            brightness = 0;
-        }
-        socket.emit("warm-candle", { id, brightness });
-    }
+    //     text("await you", width / 2, height / 2);
+    //     textSize(8);
+    //     return;
     //}
 
-    //draw fire
-    drawFireAscii(fireX, fireY);
+    // beta in range — fire shows when allCandlesReady
+    if (!allCandlesReady) {
+        fill(80);
+        textSize(14);
+        textAlign(CENTER, CENTER);
+        text("await you", width / 2, height / 2);
+        textSize(8);
+        return;
+    }
 
+    // fire becomes visible
+    if (!fireVisible) {
+        fireVisible = true;
+        fireDisplayTimer = frameCount;
+        // trigger warmth effect on all candles immediately
+        for (let id in candlesOnFireSide) {
+            socket.emit("warm-candle", { id, brightness: 1 });
+        }
+    }
+    // 3 seconds after visible, start dropping
+    let elapsed = (frameCount - fireDisplayTimer) / frameRate();
+    if (elapsed >= 3 && !fireDropping) {
+        fireDropping = true;
+        fireDropY = fireY;
+    }
+
+    if (fireDropping) {
+        velY = lerp(velY, 30, 0.05);
+        fireDropY += velY;
+
+        if (fireDropY > height - 50) {
+            for (let id in candlesOnFireSide) {
+                socket.emit("ignite-candle", { id });
+            }
+            fireFellOffScreen = true;
+            socket.disconnect();
+            velY = 0;
+            return;
+        }
+        drawFireAscii(fireX, fireDropY, 1.5);
+
+    } else {
+        fireX = width / 2;
+        fireY = height / 2;
+        drawFireAscii(fireX, fireY, 1.5);
+    }
+
+    // // debug
+    // fill(60);
+    // noStroke();
+    // textSize(10);
+    // textAlign(LEFT, TOP);
+    // text(`β:${nf(beta,1,0)}  γ:${nf(gamma,1,0)}`, 10, 14);
+    // textSize(8);
 }
 
-
-
 function drawCandleRole() {
-    if (isBurning && !isExtinguished) {
+    // check beta to show/hide candle
+    betaReady = (beta >= 70 && beta <= 100);
+    // report to server every few frames
+    socket.emit("beta-status", { ready: betaReady });
+
+    if (!betaReady && !isBurning) {
+        // show "yes" hint before range achieved, or waiting message
+        fill(80);
+        textSize(14);
+        textAlign(CENTER, CENTER);
+        text("yes", width / 2, height / 2);
+        textSize(8);
+        return;
+    }
+
+    // if extinguished, nothing to draw
+    if (isExtinguished) return;
+
+    // melt
+    if (isBurning) {
         candleHeight -= meltRate;
         if (candleHeight <= 10) {
             isExtinguished = true;
-            //when candle burns out, sound stop playing
-            if (currentSound && currentSound.isPlaying()){
-                currentSound.stop();
-            } 
-           
+            if (currentSound && currentSound.isPlaying()) currentSound.stop();
+            socket.disconnect(); //basically can rest the counter tozero for sound
+            return;
         }
     }
 
@@ -227,16 +277,15 @@ function drawCandleRole() {
     for (let y = 0; y < rows; y++) {
         for (let x = 0; x < cols; x++) {
             let char = " ";
+
+            // flame
             if (!isExtinguished && isBurning) {
-                let flameHeight = 22;
-                let flameSpread = 1.6;
+                let flameHeight = 22, flameSpread = 1.6;
                 if (y < bodyTopY && y > wickTopY - flameHeight) {
                     let n = noise(x * 0.1, y * 0.08 - frameCount * 0.3);
                     let dx = x - centerX;
                     let dy = y - (wickTopY - 3);
-                    if (dy < 0) {
-                        dy = pow(abs(dy), 0.75) * -1;
-                    }
+                    if (dy < 0) dy = pow(abs(dy), 0.75) * -1;
                     let d = sqrt(dx * dx + dy * dy * flameSpread);
                     let r = 10 * n + 3;
                     if (d < r) {
@@ -246,13 +295,15 @@ function drawCandleRole() {
                 }
             }
 
-            if (abs(x - centerX) < 0.6 && y >= wickTopY && y < bodyTopY) {
+            // wick
+            if (abs(x - centerX) < 0.6 && y >= wickTopY && y < bodyTopY)
                 if (isExtinguished) {
                     char = "i";
                 } else {
                     char = "|";
                 }
-            }
+
+            // body
             let bodyWidth = 7;
             if (y >= bodyTopY && y < base_y) {
                 if (x > centerX - bodyWidth && x < centerX + bodyWidth) {
@@ -284,12 +335,8 @@ function drawCandleRole() {
         output += "\n";
     }
 
-
     push();
-    if (isExtinguished) {
-        let a = map(smokeFrame, 0, 120, 255, 0);
-        fill(160, 160, 160, a);
-    } else if (isBurning) {
+    if (isBurning) {
         fill(250, 230, 200);
     } else if (warmBrightness > 0) {
         fill(
@@ -298,7 +345,6 @@ function drawCandleRole() {
             lerp(200, 100, warmBrightness)
         );
     } else {
-
         fill(120, 120, 120);
     }
     textLeading(charH);
@@ -306,11 +352,10 @@ function drawCandleRole() {
     text(output, originX, originY);
     pop();
 
-
+    // glow
     if (!isExtinguished) {
         let screenX = originX + centerX * charW;
         let screenY = originY + wickTopY * charH;
-        let intensity = 0;
         if (isBurning) {
             intensity = 1.4;
         } else if (warmBrightness > 0) {
@@ -321,31 +366,38 @@ function drawCandleRole() {
         }
     }
 
-
-    if (warmBrightness > 0.02 && !isBurning) {
+    // warm background tint — triggered by audioStarted (fire fell) or warmBrightness
+    if ((warmBrightness > 0.02 || audioStarted) && !isBurning) {
+        let tint;
+        if (audioStarted) {
+            tint = 1;
+        } else {
+            tint = warmBrightness;
+        }
+        let breath = map(sin(frameCount * 0.3), -1, 1, 0.5, 1.0);
         push();
         noStroke();
-        //if very close, "background" color changes
-        fill(255, 120, 0, warmBrightness * 30);
+        fill(255, 120, 0, tint * 30 * breath);
         rect(0, 0, width, height);
         pop();
     }
 }
 
-function drawFireAscii(px, py) {
-    let fw = 20, fh = 24;
+function drawFireAscii(px, py, sizeScale) {
+    sizeScale = sizeScale || 1;
+    let fw = floor(20 * sizeScale), fh = floor(24 * sizeScale);
     let cx = fw / 2;
     let output = "";
 
     for (let y = 0; y < fh; y++) {
         for (let x = 0; x < fw; x++) {
             let char = " ";
-            let n = noise(x * 0.15, y * 0.1 - frameCount * 0.35);
+            let n = noise(x * 0.15 / sizeScale, y * 0.1 / sizeScale - frameCount * 0.35);
             let dx = x - cx;
             let dy = y - (fh - 4);
             if (dy < 0) dy = pow(abs(dy), 0.7) * -1;
             let d = sqrt(dx * dx + dy * dy * 1.5);
-            let r = 9 * n + 2;
+            let r = (9 * n + 2) * sizeScale;
             if (d < r) {
                 let b = floor(map(d, 0, r, asciiChars.length - 1, 0));
                 char = asciiChars[constrain(b, 0, asciiChars.length - 1)];
@@ -358,77 +410,14 @@ function drawFireAscii(px, py) {
     push();
     let flicker = map(sin(frameCount * 0.6), -1, 1, 220, 255);
     fill(flicker, flicker * 0.75, 50);
-    textLeading(8);
+    textSize(8 * sizeScale);
+    textLeading(8 * sizeScale);
     textAlign(CENTER, BOTTOM);
     text(output, px, py);
     pop();
-    applyGlow(px, py, 0.5);
+    applyGlow(px, py, 0.5 * sizeScale);
 }
-
-
-function drawCandleAscii(px, py, nearness) {
-    let cw = 12, ch = 20;
-    let cx = cw / 2;
-    let output = "";
-
-    for (let y = 0; y < ch; y++) {
-        for (let x = 0; x < cw; x++) {
-            let char = " ";
-            let wickTopY = 4, bodyTopY = 6, bodyBotY = ch - 2, bodyW = 3;
-
-            if (nearness > 0.85 && y < bodyTopY && y >= wickTopY - 3) {
-                let n = noise(x * 0.2, y * 0.15 - frameCount * 0.3);
-                let dx = x - cx;
-                let dy = y - (wickTopY - 1);
-                if (dy < 0) dy = pow(abs(dy), 0.7) * -1;
-                let d = sqrt(dx * dx + dy * dy * 2);
-                let r = 4 * n + 1;
-                if (d < r) {
-                    let b = floor(map(d, 0, r, asciiChars.length - 1, 0));
-                    char = asciiChars[constrain(b, 0, asciiChars.length - 1)];
-                }
-            }
-            //for the wick
-            if (abs(x - cx) < 0.6 && y >= wickTopY && y < bodyTopY) {
-                if (y == wickTopY) {
-                    char = "!";
-                } else {
-                    char = "|";
-                }
-            }
-            //for the candle body
-            if (y >= bodyTopY && y < bodyBotY && abs(x - cx) <= bodyW) {
-                if (y == bodyTopY) {
-                    char = "~";
-                }
-                else if (abs(x - cx) == bodyW) {
-                    //edge
-                    char = "|";
-                }
-                else {
-                    //body
-                    char = "H";
-                }
-            }
-
-            output += char;
-        }
-        output += "\n";
-    }
-
-    push();
-    fill(
-        lerp(200, 255, nearness),
-        lerp(200, 160, nearness),
-        lerp(180, 60, nearness)
-    );
-    textLeading(8);
-    textAlign(CENTER, BOTTOM);
-    text(output, px, py);
-    pop();
-}
-
-//this is a black cover
+//this is a black cover instead of a light
 function applyGlow(screenX, screenY, intensity) {
     let glowAlpha = map(sin(frameCount * 0.4), -1, 1, 0.75, 1.0) * intensity;
     let glowRadius = max(1, (280 + sin(frameCount * 0.4) * 20) * intensity);
@@ -441,6 +430,11 @@ function applyGlow(screenX, screenY, intensity) {
     drawingContext.fillStyle = grad;
     rect(0, 0, width, height);
     pop();
+}
+
+// (not used for display anymore)
+function drawCandleAscii(px, py, nearness) {
+
 }
 
 function windowResized() {

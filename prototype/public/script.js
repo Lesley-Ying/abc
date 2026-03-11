@@ -86,10 +86,12 @@ socket.on("role", function (data) {
                 warmBrightness = 0;
             }
             //start a random sound
-            currentSound = random(sounds); 
-            currentSound.setLoop(true);
-            currentSound.play();
-           
+            // currentSound = random(sounds); 
+            // currentSound.setLoop(true);
+            // currentSound.play();
+            sound3.setLoop(true);
+            sound3.play();
+            
             console.log("burn")
         });
     }
@@ -264,8 +266,8 @@ function drawCandleRole() {
                         }
                     } else {
                         let isEdge =
-                            x == floor(centerX - bodyWidth + 1) ||
-                            x == floor(centerX + bodyWidth - 1);
+                            x === floor(centerX - bodyWidth + 1) ||
+                            x === floor(centerX + bodyWidth - 1);
 
                         if (isEdge) {
                             //if is edge

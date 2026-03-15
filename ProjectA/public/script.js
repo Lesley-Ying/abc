@@ -22,12 +22,9 @@ let smokeFrame = 0;
 let asciiChars = " .:-=+*#%@";
 let cols = 80, rows = 100;
 let base_y;
-
 let sounds = [];
 let currentSound = null;
 let mySoundIdx = 0;
-
-// state flags
 let started = false;          // after clicking start button
 let betaReady = false;        // beta in 70-100 range
 let fireVisible = false;      // fire is being displayed
@@ -40,6 +37,51 @@ let fireDropping = false;     // fire is in drop phase (after 3s)
 let fireDropY = 0;            // extra Y offset during drop
 
 
+let btn = document.querySelector("#start-button");
+btn.addEventListener("click", function(){
+        //     // userStartAudio();
+    //     // sounds[0].play();
+    //     // 
+
+
+    socket.on("burn", function (data) {
+        if (!isBurning) {
+            isBurning = true;
+            meltRate = data.meltRate;
+            warmBrightness = 0;
+        }
+
+        console.log("burning", mySoundIdx, sounds, audioStarted )
+        if (!audioStarted && sounds.length > 0) {
+            let sIdx = mySoundIdx % sounds.length
+            console.log("burning", mySoundIdx, sIdx, document.querySelector("#sound"+(sIdx+1)) )
+            document.querySelector("#sound"+(sIdx+1)).play();
+            // audioStarted = true;
+            // currentSound = sounds[mySoundIdx % sounds.length];
+            // currentSound.setLoop(true);
+            // currentSound.play();
+            console.log("audio started, idx:", mySoundIdx);
+        
+        }
+
+    });
+
+    
+        console.log("oihdoin")
+        console.log( document.querySelector("#sound1"))
+
+        document.querySelector("#sound1").play();
+        setTimeout(function(){
+            document.querySelector("#sound1").pause();
+        }, 500)
+    //     // a.play()
+    //     // a.mute = false;
+
+        requestOrientation(); 
+        document.querySelector("#start-overlay").style.display = 'none';
+        started = true;
+})
+
 function handleOrientation(eventData) {
     alpha = eventData.alpha;
     beta  = eventData.beta;
@@ -51,7 +93,7 @@ socket.emit("request-role");
 socket.on("role", function (data, extra) {
     myRole = data;
 
-    if (data === "fire") {
+    if (data == "fire") {
         console.log("I am fire");
 
         socket.on("new-candle", function (candle) {
@@ -69,7 +111,7 @@ socket.on("role", function (data, extra) {
             allCandlesReady = data.ready;
         });
 
-    } else if (data === "candle") {
+    } else if (data == "candle") {
         console.log("I am a candle");
         if (extra && extra.soundIdx !== undefined) {
             mySoundIdx = extra.soundIdx;
@@ -78,22 +120,7 @@ socket.on("role", function (data, extra) {
         socket.on("warm-up", function (data) {
             if (!isBurning) warmBrightness = data.brightness;
         });
-        socket.on("burn", function (data) {
-            if (!isBurning) {
-                isBurning = true;
-                meltRate = data.meltRate;
-                warmBrightness = 0;
-            }
-            if (!audioStarted && sounds.length > 0) {
-                audioStarted = true;
-                currentSound = sounds[mySoundIdx % sounds.length];
-                currentSound.setLoop(true);
-                currentSound.play();
-                console.log("audio started, idx:", mySoundIdx);
-            
-            }
-
-        });
+        
         
     }
 });
@@ -130,28 +157,36 @@ function setup() {
     base_y = rows - 10;
 
     // build start button overlay
-    let overlay = document.createElement('div');
-    overlay.id = 'start-overlay';
-    overlay.style.cssText = `
-        position:fixed; top:0; left:0; width:100%; height:100%;
-        background:#000; display:flex; align-items:center; justify-content:center;
-        z-index:999;
-    `;
-    let btn = document.createElement('button');
-    btn.innerText = 'start';
-    btn.style.cssText = `
-        background:none; border:1px solid #fff; color:#fff;
-        font-family:'Courier New',monospace; font-size:18px;
-        padding:14px 40px; cursor:pointer; letter-spacing:4px;
-    `;
-    btn.addEventListener('click', function () {
-        userStartAudio();
-        requestOrientation(); 
-        overlay.style.display = 'none';
-        started = true;
-    });
-    overlay.appendChild(btn);
-    document.body.appendChild(overlay);
+    // let overlay = document.createElement('div');
+    // overlay.id = 'start-overlay';
+    // overlay.style.cssText = `
+    //     position:fixed; top:0; left:0; width:100%; height:100%;
+    //     background:#000; display:flex; align-items:center; justify-content:center;
+    //     z-index:999;
+    // `;
+    // let btn = document.createElement('button');
+    // btn.innerText = 'start';
+    // btn.style.cssText = `
+    //     background:none; border:1px solid #fff; color:#fff;
+    //     font-family:'Courier New',monospace; font-size:18px;
+    //     padding:14px 40px; cursor:pointer; letter-spacing:4px;
+    // `;
+    // btn.addEventListener('click', function () {
+    //     // userStartAudio();
+    //     // sounds[0].play();
+    //     // document.querySelector("#sounds1").play();
+    //     console.log("oihdoin")
+    //     console.log( document.querySelector("#sounds1"))
+    //     // a.play()
+    //     // a.mute = false;
+
+    //     requestOrientation(); 
+    //     overlay.style.display = 'none';
+    //     started = true;
+    // });
+    
+    // overlay.appendChild(btn);
+    // document.body.appendChild(overlay);
 }
 
 function draw() {
@@ -187,7 +222,7 @@ function drawFireRole() {
         fill(80);
         textSize(14);
         textAlign(CENTER, CENTER);
-        text("await you", width / 2, height / 2);
+        text("awaiting you", width / 2, height / 2);
         textSize(8);
         return;
     }
@@ -244,10 +279,7 @@ function drawCandleRole() {
     // check beta to show/hide candle
     betaReady = (beta >= 70 && beta <= 100);
 
-    // report to server every few frames
-    
-        socket.emit("beta-status", { ready: betaReady });
-    
+    socket.emit("beta-status", { ready: betaReady });
 
     if (!betaReady && !isBurning) {
         // show "yes" hint before range achieved, or waiting message
@@ -267,7 +299,12 @@ function drawCandleRole() {
         candleHeight -= meltRate;
         if (candleHeight <= 10) {
             isExtinguished = true;
-            if (currentSound && currentSound.isPlaying()) currentSound.stop();
+            // if (currentSound && currentSound.isPlaying()){
+            //  currentSound.stop();
+            let sIdx = mySoundIdx % sounds.length
+            document.querySelector("#sound"+(sIdx+1)).pause();
+
+        // }
             socket.disconnect(); 
             return;
         }
@@ -364,7 +401,16 @@ function drawCandleRole() {
     if (!isExtinguished) {
         let screenX  = originX + centerX * charW;
         let screenY  = originY + wickTopY * charH;
-        let intensity = isBurning ? 1.4 : (warmBrightness > 0 ? 2 + warmBrightness * 0.6 : 0);
+        let intensity;
+        if (isBurning) {
+          intensity = 1.4;
+        } else {
+          if (warmBrightness > 0) {
+            intensity = 2 + warmBrightness * 0.6;
+          } else {
+            intensity = 0;
+          }
+        }
         if (intensity > 0) applyGlow(screenX, screenY, intensity);
     }
 

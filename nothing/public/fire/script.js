@@ -22,9 +22,9 @@ let fireDropping = false;     // fire is in drop phase (after 3s)
 let fireDropY = 0;            // extra Y offset during drop
 let trans = 0;
 
-burnButton.addEventListener("click", function () {
-  socket.emit("startSound")
-})
+// burnButton.addEventListener("click", function () {
+//   socket.emit("startSound")
+// })
 
 function startSocketThings() {
   console.log("setting up socket listeners")
@@ -40,21 +40,21 @@ function startSocketThings() {
 }
 
 // for debugging if computer wants to be the fire:
-setTimeout(function () {
-  console.log("device orientation works");
+// setTimeout(function () {
+//   console.log("device orientation works");
 
-  document.querySelector("#requestOrientationButton").remove();
+//   document.querySelector("#requestOrientationButton").remove();
 
-  if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
-    socket = io({ path: "/leon/port-4101/socket.io" });  // e.g. '/leon/port-4100/socket.io' or '/socket.io'
-  } else {
-    socket = io();
-  }
+//   if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
+//     socket = io({ path: "/leon/port-4101/socket.io" });  // e.g. '/leon/port-4100/socket.io' or '/socket.io'
+//   } else {
+//     socket = io();
+//   }
 
-  startSocketThings();
+//   startSocketThings();
 
-  initialized = true;
-}, 1000)
+//   initialized = true;
+// }, 1000)
 
 function handleOrientation(eventData) {
 

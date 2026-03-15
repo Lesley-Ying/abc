@@ -1,6 +1,30 @@
-body{
+body {
     margin: 0;
+    overflow: hidden;
+    background-color: black;
+    width: 100vw;
+    height: 100vh;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    position: relative; 
 }
+
+#requestOrientationButton {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+    z-index: 1000;
+    background-color: transparent;
+    color: white;
+    border: 1px solid white;
+    padding: 15px 40px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
 #debug{
     position: fixed;
     bottom:0px;
@@ -21,9 +45,7 @@ body{
     /* z-index: 9000; */
   
   }
-  #requestOrientationButton {
-    z-index: 100; 
-}
+  
 
 #wrapper{
     background-color: lightblue;

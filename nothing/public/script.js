@@ -33,17 +33,18 @@ startSocketThings();
 
 function startSocketThings() {
   console.log("setting up socket listeners")
-  //do this before connecting to socket???
-  socket.on("melt", function () {
-    let p = document.createElement("p");
-    p.innerHTML = "melting...";
-    let randomDelay = Math.random() * 3000;
-    setTimeout(function () {
-      audio1.play();
-    }, randomDelay)
 
-    document.querySelector("#main").append(p);
-  })
+  //do this before connecting to socket???
+  // socket.on("melt", function () {
+  //   let p = document.createElement("p");
+  //   p.innerHTML = "melting...";
+  //   let randomDelay = Math.random() * 3000;
+  //   setTimeout(function () {
+  //     audio1.play();
+  //   }, randomDelay)
+
+  //   document.querySelector("#main").append(p);
+  // })
 
   // inform server of my role:candle
   socket.emit("my-role", { role: "candle" });
@@ -114,9 +115,8 @@ function preload() {
   sounds.push(loadSound("assets/sound1.mp3"));
   sounds.push(loadSound("assets/sound2.mp3"));
   sounds.push(loadSound("assets/sound3.mp3"));
+  sounds.push(loadSound("assets/sound4.mp3"));
   sounds.push(loadSound("assets/sound5.mp3"));
-  sounds.push(loadSound("assets/sound6.mp3"));
-  sounds.push(loadSound("assets/sound7.mp3"));
   collectiveSound = loadSound("assets/collectiveSound.mp3");
 }
 

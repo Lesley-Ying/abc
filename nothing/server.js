@@ -28,7 +28,7 @@ const io = new Server(HTTPSserver); // start socket io
 
 let candles=[];
 let fire;
-let soundCount = 7; // total number of audio files
+let soundCount = 5; // total number of audio files
 let soundCounter = 0; // cycles through 0->6
 
 
@@ -60,13 +60,13 @@ io.on('connection', (socket) => {
     })
 
 
-    socket.on("startSound", function(){
-        console.log("fire telling to burn candles")
-        // could decide here which order to tell
-        // which candle to burn and put in delays
-        //broadcast: sending this message to everyone except the one who trigger this event
-        socket.broadcast.emit("melt")
-    })
+    // socket.on("startSound", function(){
+    //     console.log("fire telling to burn candles")
+    //     // could decide here which order to tell
+    //     // which candle to burn and put in delays
+    //     //broadcast: sending this message to everyone except the one who trigger this event
+    //     socket.broadcast.emit("melt")
+    // })
 
     //server check if all cand;e-beta are ready, if yes, fire fall
     socket.on("beta-status", function(data){
@@ -84,6 +84,7 @@ io.on('connection', (socket) => {
         io.to(fire).emit("all-candles-ready", {ready: allReady});
       }
       //just sending this to everyone although fire doesn't need to listen for this
+      if(fire==undefined) return;
       if(allReady){
         io.emit("warm-up", {brightness:1})
       }

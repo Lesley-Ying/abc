@@ -91,6 +91,7 @@ function handleOrientation(eventData) {
   if (!initialized) {
     console.log("device orientation works", audio1);
     audio1.play();
+    //don't know if this does anything
     if (getAudioContext().state !== 'running') {
       getAudioContext().resume();
     }

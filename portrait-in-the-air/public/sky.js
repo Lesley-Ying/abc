@@ -3,7 +3,11 @@ let socket;
 let grass = [];
 let stars = [];
 const WIDTH = 2000;
-
+if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
+  socket = io({ path: "/lesley/port-4290/socket.io" });
+} else {
+  socket = io();
+}
 
 function setup() {
   createCanvas(WIDTH, windowHeight);
@@ -18,7 +22,8 @@ function setup() {
   }
 
 
-  socket = io();
+  
+
 
   // new kite arriving live
   socket.on("new-kite", function (kiteData) {

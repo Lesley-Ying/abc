@@ -1,0 +1,6 @@
+body {
+  overflow: hidden; /* 防止缩放时出现滚动条干扰坐标计算 */
+  margin: 0;
+}
+
+

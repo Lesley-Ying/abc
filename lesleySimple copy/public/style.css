@@ -22,9 +22,9 @@ body{
 }
 
 
-#requestOrientationButton {
+/* #requestOrientationButton {
     z-index: 100; 
-}
+} */
 /* explanation: */
 /* width:100%; means full width of browser */
 /* height:100vh; means full height of viewport */

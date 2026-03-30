@@ -32,13 +32,12 @@ io.on('connection', (socket) => {
     console.log('a user connected', socket.id);
 
 
-    socket.on("burnCandles", function(){
-        console.log("fire telling to burn candles")
-        // could decide here which order to tell
-        // which candle to burn and put in delays
-        socket.broadcast.emit("melt")
-    })
-    
+   // Receive shape from one client, broadcast to all others
+    // data: array of {x, y, w, h} with relative positions
+    socket.on("sendShape", function(data) {
+        socket.broadcast.emit("receiveShape", data);
+    });
+
     // DISCONNECT
     // manage the roles
     socket.on("disconnect", function(){

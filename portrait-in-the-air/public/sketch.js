@@ -19,11 +19,12 @@ let imgs = [];
 let socket;
 let sound1;
 // let socket = io();  // yields '/leon/port-4100/socket.io' or '/socket.io'
-if (location.hostname.toLowerCase().startsWith("browsercircus")) {
-  socket = io({ path: "/gps-see-everyone/socket.io" });
+if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
+  socket = io({ path: "/lesley/port-4290/socket.io" });
 } else {
   socket = io();
 }
+
 
 // options for map
 // we only actually initialize the map once we get data where we are (in draw)

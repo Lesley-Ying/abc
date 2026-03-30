@@ -133,6 +133,7 @@ function draw() {
     myMap.map.setMaxZoom(18);
     myMap.map.scrollWheelZoom.disable();
     myMap.map.doubleClickZoom.disable();
+    myMap.map.dragging.disable();
     myMap.map.touchZoom.disable();
     zoomLocked = true;
   }
@@ -163,6 +164,7 @@ function draw() {
     me.update();
     me.display();
     drawUI();
+  
   }
 }
 //debug function

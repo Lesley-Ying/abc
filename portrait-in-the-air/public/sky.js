@@ -47,7 +47,7 @@ function setup() {
 function draw() {
   // off-white sky
   background(245, 238, 225);
-
+myMap.map.dragging.disable();
   // soft speckle texture — gives it a papery feel
   //   drawSpeckles();
 

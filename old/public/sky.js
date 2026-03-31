@@ -102,7 +102,7 @@ function draw() {
     textAlign(CENTER, CENTER);
     textSize(18);
     text(
-      "No kites yet — stitch some pieces and share your quilt!",
+      "waiting for the kites to come",
       windowWidth / 2,
       height * 0.4,
     );

@@ -1,5 +1,3 @@
-//make the map more transparent
-//make the stich/needle/thread more obvious
 let mappa = new Mappa("Leaflet");
 let myMap;
 let canvas;
@@ -21,12 +19,14 @@ let imgs = [];
 let socket;
 let sound1;
 // let socket = io();  // yields '/leon/port-4100/socket.io' or '/socket.io'
-if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
-  socket = io({ path: "/lesley/port-4290/socket.io" });
+if (
+  location.hostname.toLowerCase().startsWith("browsercircus") ||
+  location.hostname.toLowerCase().startsWith("www")
+) {
+  socket = io({ path: "/haya/port-4230/socket.io" });
 } else {
   socket = io();
 }
-
 
 // options for map
 // we only actually initialize the map once we get data where we are (in draw)
@@ -34,7 +34,7 @@ if (location.hostname.toLowerCase().startsWith('browsercircus') || location.host
 let mappa_options = {
   lat: 0, // will change once we have data
   lng: 0, // will change once we have data
-  zoom: 18,//lock the zoom scale??
+  zoom: 18,
   minZoom: 18,
   maxZoom: 18,
   scrollWheelZoom: false,
@@ -49,11 +49,8 @@ let mappa_options = {
 
 //icon imgs
 function preload() {
-  for (let i = 1; i <= 15; i++) {
-    imgs.push(loadImage("assets/" + i + ".JPG"));
-  }
-  //add sound?
-  //sound1 = loadSound("assets/stich.mp3");
+  for (let i = 1; i <= 15; i++) imgs.push(loadImage("assets/" + i + ".JPG"));
+  sound1 = loadSound("assets/stich.mp3");
 }
 
 function setup() {
@@ -62,15 +59,12 @@ function setup() {
   canvas.elt.style.pointerEvents = "auto";
   me = new MyPoint();
 
-  //should be moved to css
-  //ui
   let uiLayer = document.createElement("div");
   uiLayer.id = "ui-layer";
   uiLayer.style.cssText =
     "position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999; pointer-events:none;";
   document.body.appendChild(uiLayer);
 
-  //show up when the stiching effect triggered
   let statusTip = document.createElement("div");
   statusTip.id = "stitching-status";
   statusTip.textContent = "stitching…";
@@ -78,7 +72,6 @@ function setup() {
     "position:absolute; top:20px; left:50%; transform:translateX(-50%); background:rgba(30,80,50,0.8); color:white; padding:8px 16px; border-radius:20px; font-size:14px; display:none;";
   uiLayer.appendChild(statusTip);
 
-  //progress bar
   let progressContainer = document.createElement("div");
   progressContainer.id = "progress-ui";
   progressContainer.style.cssText =
@@ -103,7 +96,6 @@ function setup() {
   progressContainer.appendChild(progressText);
   uiLayer.appendChild(progressContainer);
 
-  //share button
   let btn = document.createElement("button");
   btn.id = "share-btn";
   btn.textContent = "🪡 Share my kite";
@@ -122,7 +114,7 @@ function setup() {
     pointer-events: auto;
     white-space: nowrap;
     z-index: 10000;
-    transform-origin: center;
+    transform-origin: center;updateMapContent
   `;
   btn.addEventListener("click", shareAllGroups);
   uiLayer.appendChild(btn);
@@ -136,6 +128,11 @@ function setup() {
 
 function draw() {
   clear();
+
+  noStroke();
+  fill(255, 255, 255, 80);
+  rect(0, 0, width, height);
+
   //disable users to zoom in/out
   if (mapInit && myMap && myMap.map && !zoomLocked) {
     myMap.map.setMinZoom(18);
@@ -146,6 +143,7 @@ function draw() {
     myMap.map.touchZoom.disable();
     zoomLocked = true;
   }
+
   // Initialize full screen map
   // runs only once to init the map
   if (
@@ -166,17 +164,12 @@ function draw() {
   if (mapInit) {
     syncClothPixels();
     handleActiveStitch();
-    for (let c of cloths) {
-      c.display();
-    }
-    if (!activeStitch) {
-      detectAutoStitch();//whether new stich triggered?
-      drawPermanentStitches();//draw stich mark
-      me.update();
-      me.display();
-      drawUI();
-    }
-
+    for (let c of cloths) c.display();
+    if (!activeStitch) detectAutoStitch();
+    drawPermanentStitches();
+    me.update();
+    me.display();
+    drawUI();
   }
 }
 //debug function
@@ -186,9 +179,8 @@ window.addEventListener("click", function (e) {
   triggerStitchAt(e.clientX - rect.left, e.clientY - rect.top);
 });
 
-//this function if for touch debug
 function triggerStitchAt(x, y) {
-  //which cloth am I stepping on, x&y my pos
+  //which cloth am I stepping on
   let clicked = cloths.find((c) => c.contains(x, y));
   if (!clicked) return;
   //check whether back and forth
@@ -196,14 +188,14 @@ function triggerStitchAt(x, y) {
     let g1 = getGroupOf(lastCloth);
     let g2 = getGroupOf(clicked);
     if (g1 !== g2) {
-      if (currentGroupPair.length == 0) {
+      if (currentGroupPair.length === 0) {
         currentGroupPair = [g1, g2];
-        stitchCount = 0.5;//start to count back and forth
+        stitchCount = 0.5;
       } else if (
         currentGroupPair.includes(g1) &&
         currentGroupPair.includes(g2)
       ) {
-        stitchCount += 0.5;//increase one back and forth
+        stitchCount += 0.5;
         //count:how many times back and forth
         if (stitchCount >= 2) {
           activeStitch = { mover: lastCloth, target: clicked };
@@ -220,7 +212,6 @@ function triggerStitchAt(x, y) {
 }
 
 //GPS position
-//how to make this emoji a compass?
 class MyPoint {
   constructor() {
     this.x = 0;
@@ -234,8 +225,8 @@ class MyPoint {
     this.emojiAdjustAngle = radians(45);
   }
   update() {
-    this.x = lerp(this.x, this.goalX, 0.2);
-    this.y = lerp(this.y, this.goalY, 0.2);
+    this.x = this.goalX; // lerp(this.x, this.goalX, 0.2);
+    this.y = this.goalY; //lerp(this.y, this.goalY, 0.2);
   }
   updateHeading(h) {
     this.heading = h;
@@ -279,16 +270,15 @@ class Cloth {
     this.pos = createVector(0, 0);
     this.id = id;
     this.img = imgs[id % imgs.length];
-    this.sizeSet = false;
+    this._sizeSet = false;
     this.wMeters = CLOTH_LONG_SIDE_M;
     this.hMeters = CLOTH_LONG_SIDE_M;
     this.w = 0;
     this.h = 0;
   }
   //check the image is horizontal or vertical
-  //assign it the shape according to the w/h ratio
   initSize() {
-    if (this.sizeSet || !this.img) return;
+    if (this._sizeSet || !this.img || this.img.width == 0) return;
     let ratio = this.img.width / this.img.height;
     if (ratio >= 1) {
       this.wMeters = CLOTH_LONG_SIDE_M;
@@ -297,7 +287,7 @@ class Cloth {
       this.hMeters = CLOTH_LONG_SIDE_M;
       this.wMeters = CLOTH_LONG_SIDE_M * ratio;
     }
-    this.sizeSet = true;
+    this._sizeSet = true;
   }
 
   isUserOver() {
@@ -307,7 +297,6 @@ class Cloth {
   display() {
     this.initSize();
     if (this.w == 0 || !this.img) return;
-    //give each cloth a group
     let myGroup = getGroupOf(this);
     let hovered = this.isUserOver();
     push();
@@ -327,7 +316,6 @@ class Cloth {
     pop();
   }
 
-  //check whether a cloth contains me
   contains(px, py) {
     return (
       px > this.pos.x - this.w / 2 &&
@@ -336,7 +324,6 @@ class Cloth {
       py < this.pos.y + this.h / 2
     );
   }
-  //return the pos data of that specific cloth
   getBounds() {
     return {
       l: this.pos.x - this.w / 2,
@@ -345,8 +332,6 @@ class Cloth {
       b: this.pos.y + this.h / 2,
     };
   }
-  //ensure that the cloth remains to the map's coordinates after moving
-  //rather than floating 
   updateLatLng() {
     let ll = myMap.pixelToLatLng(this.pos.x, this.pos.y);
     this.lat = ll.lat;
@@ -355,14 +340,13 @@ class Cloth {
 }
 
 //spread the cloths
-//（a circle)
 function spawnCloths(lat, lng) {
   cloths = [];
   clusterGroups = [];
-  let MIN_CENTER_M = 18;//distance between imgs
-  let MIN_RING_M = 10;//distance with me
-  let MAX_CLOTHS = 15; // number of imgs
-  let MAX_RING_M = 50;//distance with me
+  let MIN_CENTER_M = 18;
+  let MIN_RING_M = 10;
+  let MAX_CLOTHS = 15; // updated to match total number of images
+  let MAX_RING_M = 50;
   let degLat = 1 / 111000;
   let degLng = 1 / (111000 * Math.cos((lat * Math.PI) / 180));
 
@@ -385,12 +369,11 @@ function spawnCloths(lat, lng) {
     if (!placed.some((p) => distM(candidate, p) < MIN_CENTER_M)) {
       placed.push(candidate);
       cloths.push(new Cloth(candidate.lat, candidate.lng, placed.length - 1));
-      clusterGroups.push([cloths[cloths.length - 1]]);//!every cloth is a group itself
+      clusterGroups.push([cloths[cloths.length - 1]]);
     }
   }
 }
 
-//change to pixels
 function syncClothPixels() {
   for (let c of cloths) {
     let px = myMap.latLngToPixel(c.lat, c.lng);
@@ -401,7 +384,6 @@ function syncClothPixels() {
   }
 }
 
-//this is the gps detection
 function detectAutoStitch() {
   //which cloth are you standing on
   let hovering = cloths.find((c) => c.isUserOver());
@@ -410,25 +392,21 @@ function detectAutoStitch() {
     //find their group(for every cloth, it's already in a group)
     let g1 = getGroupOf(lastCloth);
     let g2 = getGroupOf(hovering);
-    //if they're not in the same group, them combine
+    //case a:they're not in the same group, them combine
     if (g1 !== g2) {
-      //this s a temporary group, to record the two cloth i am sewing
-      if (currentGroupPair.length == 0) {
+      if (currentGroupPair.length === 0) {
         currentGroupPair = [g1, g2];
-        stitchCount = 0.5;//start to count
-
-        //else if, make the thing correct in case I suddenly go to g3
+        stitchCount = 0.5;
       } else if (
         currentGroupPair.includes(g1) &&
         currentGroupPair.includes(g2)
       ) {
-        stitchCount += 0.5;//increase
+        stitchCount += 0.5;
         if (stitchCount >= 2) {
           activeStitch = { mover: lastCloth, target: hovering };
           stitchCount = 0;
           currentGroupPair = [];
         }
-        //update my select group
       } else {
         currentGroupPair = [g1, g2];
         stitchCount = 0.5;
@@ -440,13 +418,13 @@ function detectAutoStitch() {
 
 function handleActiveStitch() {
   if (!activeStitch) return;
-  //a move to b
   let gA = getGroupOf(activeStitch.mover);
   let gB = getGroupOf(activeStitch.target);
-  //how many rounds
   let STEP = 2;
-  //atrraction
-  let vec = p5.Vector.sub(activeStitch.target.pos, activeStitch.mover.pos).normalize().mult(STEP);
+  let vec = p5.Vector.sub(activeStitch.target.pos, activeStitch.mover.pos)
+    .normalize()
+    .mult(STEP);
+
   let collision = null;
 
   for (let a of gA) {
@@ -469,64 +447,35 @@ function handleActiveStitch() {
     activeStitch = null;
   }
 }
-//
+
 function wouldOverlap(a, b, vec) {
-  //left right top bottom
-  let aL = a.pos.x - a.w / 2 + vec.x;
-  let aR = a.pos.x + a.w / 2 + vec.x;
-  let aT = a.pos.y - a.h / 2 + vec.y;
-  let aB = a.pos.y + a.h / 2 + vec.y;
-  let bL = b.pos.x - b.w / 2;
-  let bR = b.pos.x + b.w / 2;
-  let bT = b.pos.y - b.h / 2;
-  let bB = b.pos.y + b.h / 2;
-  //AABB
-  //if one of these four cons turns true, it means a can keep moving, so return fause
+  let aL = a.pos.x - a.w / 2 + vec.x,
+    aR = a.pos.x + a.w / 2 + vec.x;
+  let aT = a.pos.y - a.h / 2 + vec.y,
+    aB = a.pos.y + a.h / 2 + vec.y;
+  let bL = b.pos.x - b.w / 2,
+    bR = b.pos.x + b.w / 2;
+  let bT = b.pos.y - b.h / 2,
+    bB = b.pos.y + b.h / 2;
   return !(aR <= bL || aL >= bR || aB <= bT || aT >= bB);
 }
 
-
-//when a is going to hit b, snap to edge
-//basically just smooth the animation
-function snapToEdge(movingGroup, clothA, clothB, moveVector) {
-  let snapDistance = createVector(0, 0);
-  let a = {
-    left: clothA.pos.x - clothA.w / 2,
-    right: clothA.pos.x + clothA.w / 2,
-    top: clothA.pos.y - clothA.h / 2,
-    bottom: clothA.pos.y + clothA.h / 2
-  };
-
-  let b = {
-    left: clothB.pos.x - clothB.w / 2,
-    right: clothB.pos.x + clothB.w / 2,
-    top: clothB.pos.y - clothB.h / 2,
-    bottom: clothB.pos.y + clothB.h / 2
-  };
-
-
-  if (abs(moveVector.x) >= abs(moveVector.y)) {
-    // horizontal
-    if (moveVector.x > 0) {
-      //move to right
-      snapDistance.x = b.left - a.right;
-    } else {
-      // move to left
-      snapDistance.x = b.right - a.left;
-    }
+function snapToEdge(gA, cA, cB, vec) {
+  let snap = createVector(0, 0);
+  if (abs(vec.x) >= abs(vec.y)) {
+    snap.x =
+      vec.x > 0
+        ? cB.pos.x - cB.w / 2 - (cA.pos.x + cA.w / 2)
+        : cB.pos.x + cB.w / 2 - (cA.pos.x - cA.w / 2);
   } else {
-    // vertical
-    if (moveVector.y > 0) {
-      // move down
-      snapDistance.y = b.top - a.bottom;
-    } else {
-      // move up
-      snapDistance.y = b.bottom - a.top;
-    }
+    snap.y =
+      vec.y > 0
+        ? cB.pos.y - cB.h / 2 - (cA.pos.y + cA.h / 2)
+        : cB.pos.y + cB.h / 2 - (cA.pos.y - cA.h / 2);
   }
-  for (let member of movingGroup) {
-    member.pos.add(snapDistance);
-    member.updateLatLng();
+  for (let m of gA) {
+    m.pos.add(snap);
+    m.updateLatLng();
   }
 }
 
@@ -534,19 +483,14 @@ function findPlace(g1, g2, cA, cB) {
   let b1 = cA.getBounds();
   let b2 = cB.getBounds();
   let sd = { hostCloth: cA, points: [], revealed: 0, revealTimer: 0 };
-  let STITCH_GAP = 5;
+
+  const STITCH_GAP = 5;
+
   let dx = cA.pos.x - cB.pos.x;
   let dy = cA.pos.y - cB.pos.y;
 
   if (abs(dx) > abs(dy)) {
-
-    let stitchX;
-    if (dx > 0) {
-      stitchX = b1.l;
-    } else {
-      stitchX = b1.r;
-    }
-
+    let stitchX = dx > 0 ? b1.l : b1.r;
     let intersectTop = max(b1.t, b2.t);
     let intersectBottom = min(b1.b, b2.b);
     let edgeLength = intersectBottom - intersectTop;
@@ -561,13 +505,7 @@ function findPlace(g1, g2, cA, cB) {
       sd.points.push(p5.Vector.sub(createVector(stitchX, py), cA.pos));
     }
   } else {
-    let stitchY;
-    if (dy > 0) {
-      stitchY = b1.t;
-    } else {
-      stitchY = b1.b;
-    }
-
+    let stitchY = dy > 0 ? b1.t : b1.b;
     let intersectLeft = max(b1.l, b2.l);
     let intersectRight = min(b1.r, b2.r);
     let edgeWidth = intersectRight - intersectLeft;
@@ -581,19 +519,19 @@ function findPlace(g1, g2, cA, cB) {
     }
   }
 
-  if (sd.points.length == 0) {
+  if (sd.points.length === 0) {
     sd.points.push(createVector(0, 0));
   }
 
   permanentStitches.push(sd);
-  //combine the group
+
   let newGroup = g1.concat(g2);
   clusterGroups = clusterGroups.filter((g) => g !== g1 && g !== g2);
   clusterGroups.push(newGroup);
 }
 
 function drawPermanentStitches() {
-  let S = 1;//size
+  const S = 1;
   push();
   for (let s of permanentStitches) {
     s.revealTimer++;
@@ -620,6 +558,7 @@ function shareAllGroups() {
   for (let group of clusterGroups) {
     if (group.length < 2) continue;
 
+    // bounding box of this group in pixel space
     let minX = Infinity,
       minY = Infinity,
       maxX = -Infinity,
@@ -635,9 +574,13 @@ function shareAllGroups() {
     let bH = maxY - minY;
     if (bW <= 0 || bH <= 0) continue;
 
+    // padding around the quilt
     const PAD = 12;
+
+    // render into an offscreen p5.Graphics buffer
     let gfx = createGraphics(bW + PAD * 2, bH + PAD * 2);
 
+    // draw each photo piece
     for (let c of group) {
       let lx = c.pos.x - c.w / 2 - minX + PAD;
       let ly = c.pos.y - c.h / 2 - minY + PAD;
@@ -646,7 +589,7 @@ function shareAllGroups() {
         gfx.image(c.img, lx, ly, c.w, c.h);
       }
     }
-    //stich mark
+    // draw the stitch marks on top
     const S = 1;
     gfx.strokeCap(ROUND);
     for (let s of permanentStitches) {
@@ -686,7 +629,7 @@ function shareAllGroups() {
 
   if (sent == 0) alert("Stitch some pieces together first!");
 
-  window.open("sky.html", "_blank");
+  window.open("sky.html", "_self");
 }
 
 function getGroupOf(c) {
@@ -716,12 +659,40 @@ function updateMapContent() {
 }
 
 function drawUI() {
+  // if (stitchCount > 0 || currentGroupPair.length > 0) {
+  //   let bw = 150,
+  //     bh = 10,
+  //     x = 20,
+  //     y = 20;
+  //   noFill();
+  //   stroke(200);
+  //   strokeWeight(1);
+  //   rectMode(CORNER);
+  //   rect(x, y, bw, bh, 5);
+  //   if (stitchCount > 0) {
+  //     noStroke();
+  //     fill(30, 80, 50, 200);
+  //     rect(x, y, (stitchCount / 4) * bw, bh, 5);
+  //   }
+  //   fill(120);
+  //   noStroke();
+  //   textAlign(LEFT);
+  //   textSize(13);
+  //   text("sewing: " + nf((stitchCount / 4) * 100, 1, 0) + "%", x, y + 25);
+  // }
+  // if (activeStitch) {
+  //   fill(30, 80, 50, 180);
+  //   noStroke();
+  //   textAlign(CENTER);
+  //   textSize(13);
+  //   text("✦ stitching…", width / 2, height - 30);
+  // }
   let statusTip = document.getElementById("stitching-status");
-  let progressUI = document.getElementById("progress-ui");
+  let progressUI = document.getElementById("progress-ui"); // 确保是这个 ID
   let progressFill = document.getElementById("progress-fill");
   let progressText = document.getElementById("progress-text");
 
-  if (!statusTip || !progressUI) return;
+  if (!statusTip || !progressUI) return; // 防错
 
   if (activeStitch) {
     statusTip.style.display = "block";
@@ -743,15 +714,21 @@ function updateUILayout() {
   let uiLayer = document.getElementById("ui-layer");
   let btn = document.getElementById("share-btn");
   if (!uiLayer || !btn) return;
+
   let scale = 1 / vv.scale;
+
+  // 同步 UI 层到当前视口左上角
   uiLayer.style.transformOrigin = "0 0";
   uiLayer.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop}px) scale(${scale})`;
+
   let targetTop = vv.height * vv.scale - 60;
   btn.style.top = targetTop + "px";
+
+  // 保持容器填满（防穿透）
   uiLayer.style.width = vv.width * vv.scale + "px";
   uiLayer.style.height = vv.height * vv.scale + "px";
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  // resizeCanvas(windowWidth, windowHeight);
 }

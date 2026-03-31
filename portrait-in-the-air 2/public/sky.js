@@ -3,8 +3,11 @@ let socket;
 let grass = [];
 let stars = [];
 const WIDTH = 2000;
-if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
-  socket = io({ path: "/lesley/port-4290/socket.io" });
+if (
+  location.hostname.toLowerCase().startsWith("browsercircus") ||
+  location.hostname.toLowerCase().startsWith("www")
+) {
+  socket = io({ path: "/haya/port-4230/socket.io" });
 } else {
   socket = io();
 }
@@ -21,7 +24,6 @@ function setup() {
     });
   }
 
-
   // new kite arriving live
   socket.on("new-kite", function (kiteData) {
     let k = new Kite(kiteData);
@@ -30,7 +32,7 @@ function setup() {
   });
 
   // load all kites saved on the server
-  fetch("/kites")
+  fetch("kites")
     .then(function (r) {
       return r.json();
     })
@@ -47,11 +49,9 @@ function setup() {
 
 // ─── DRAW ────────────────────────────────────────────────────
 function draw() {
-  // off-white sky
   background(245, 238, 225);
-myMap.map.dragging.disable();
-  // soft speckle texture — gives it a papery feel
-  //   drawSpeckles();
+  //do need for this line. it makes the code crash since there is no mymap on sky screen.
+  // myMap.map.dragging.disable();
 
   // faint specks in sky
   noStroke();
@@ -61,14 +61,11 @@ myMap.map.dragging.disable();
   }
 
   // kites
-  
+
   for (let k of kites) {
     k.move();
     k.display();
   }
-
-  // ground + grass always on top
-  //   drawGround();
 
   // empty state
   if (kites.length === 0) {
@@ -83,49 +80,8 @@ myMap.map.dragging.disable();
     );
   }
 }
-function keyPressed() {
-  if (key === 'c') {
-    kites.length = 0;
-  }
-}
-// ─── PAPERY SPECKLE TEXTURE ──────────────────────────────────
-function drawSpeckles() {
-  // drawn once every 90 frames so it doesn't flicker
-  if (frameCount % 90 !== 1) return;
-  noStroke();
-  for (let i = 0; i < 400; i++) {
-    let a = random(8, 25);
-    fill(random(180, 210), random(165, 195), random(140, 170), a);
-    circle(random(width), random(height * 0.78), random(1, 4));
-  }
-}
 
-// ─── GROUND + GRASS ──────────────────────────────────────────
-function drawGround() {
-  let gy = height * 0.78;
-
-  // ground strip
-  noStroke();
-  fill(80, 130, 55);
-  rect(0, gy, width, height - gy);
-
-  // slightly darker lower band
-  fill(55, 95, 35);
-  rect(0, gy + (height - gy) * 0.4, width, (height - gy) * 0.6);
-
-  // grass blades
-  let wind = sin(frameCount * 0.012) * 0.2;
-  strokeCap(ROUND);
-  for (let b of grass) {
-    let sway = sin(frameCount * 0.018 + b.phase) * 10 + wind * 14;
-    stroke(b.col);
-    strokeWeight(random(1.2, 2.8));
-    line(b.x, gy, b.x + sway, gy - b.h);
-  }
-  noStroke();
-}
-
-// ─── KITE CLASS ──────────────────────────────────────────────
+//  KITE CLASS
 class Kite {
   constructor(kiteData) {
     this.imageData = kiteData.imageData; // base64 PNG string
@@ -157,7 +113,7 @@ class Kite {
     this.wobbleSpeed = random(0.008, 0.018);
 
     // how wide to display the kite (height scales with image ratio)
-    this.displayW = random(120, 200);
+    this.displayW = random(120, 130);
 
     // string length below the kite
     this.stringLen = random(270, 500);
@@ -194,21 +150,9 @@ class Kite {
     let dispW = this.displayW;
     let dispH = dispW * ratio;
 
-    // ── shadow beneath kite ──
-    noStroke();
-    fill(0, 0, 0, 18);
-    // ellipse(6, dispH / 2 + 8, dispW * 0.9, dispH * 0.18);
-
     // ── kite image (the stitched quilt) ──
     imageMode(CENTER);
     image(this.img, 0, 0, dispW, dispH);
-
-    // thin border around the kite
-    // noFill();
-    // stroke(160, 145, 120, 120);
-    // strokeWeight(1);
-    // rectMode(CENTER);
-    // rect(0, 0, dispW, dispH);
 
     // ── string hanging below ──
     // anchor at the bottom-centre of the kite
@@ -230,7 +174,7 @@ class Kite {
       prevY = ny;
     }
 
-    // small bow / knot at the string end
+    // small dot at the string end
     noStroke();
     fill(180, 140, 80, 200);
     ellipse(prevX, prevY, 9, 6);
@@ -242,8 +186,6 @@ class Kite {
 // ─── RESIZE ──────────────────────────────────────────────────
 function windowResized() {
   resizeCanvas(WIDTH, windowHeight);
-  // rebuild grass for new width
-  grass = [];
   for (let i = 0; i < width / 5; i++) {
     grass.push({
       x: random(width),

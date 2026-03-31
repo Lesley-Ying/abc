@@ -65,7 +65,6 @@ function setup() {
   });
 
   // load all kites saved on the server
-  // 在 setup 中修改 fetch 部分
 fetch("kites")
 .then(function (r) {
   return r.json();

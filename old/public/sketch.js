@@ -250,20 +250,13 @@ class MyPoint {
     rotate(this.emojiAdjustAngle);
     translate(0, -12);
     textAlign(CENTER, CENTER);
-    // textSize(30);
-    // text("🪡", 0, 0);
-    // 添加原生 Canvas 阴影（发光效果）
-  let ctx = drawingContext;
-  ctx.shadowBlur = 15;        // 发光范围
-  ctx.shadowColor = 'white';  // 发光颜色，也可以用 'yellow' 增加醒目度
-  
-  textAlign(CENTER, CENTER);
-  
-  // 增大字号
-  textSize(35); 
-  
-  // 绘制 Emoji
-  text("🪡", 0, 0);
+    let ctx = drawingContext;
+    ctx.shadowBlur = 20;        
+    ctx.shadowColor = 'yellow';  
+
+    textAlign(CENTER, CENTER);
+    textSize(35);
+    text("🪡", 0, 0);
     pop();
     fill(255, 0, 0);
     noStroke();

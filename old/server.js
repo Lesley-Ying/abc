@@ -21,6 +21,9 @@ const HTTPSserver = https.createServer(options, app);
 const { Server } = require("socket.io");
 const io = new Server(HTTPSserver);
 
+fs.writeFileSync('kites.json', JSON.stringify([])); 
+console.log("Server started: Kite data has been cleared.");
+
 let currentlyConnected = [];
 
 //does kite.json exist

@@ -225,6 +225,8 @@ class MyPoint {
     this.accuracy = 0;
     this.heading = 0;
     this.emojiAdjustAngle = 0;
+    this.startFrame = frameCount; 
+    this.bounceDuration = 60 * 5; 
   }
   update() {
     this.x = this.goalX; // lerp(this.x, this.goalX, 0.2);
@@ -245,18 +247,29 @@ class MyPoint {
     stroke("pink");
     strokeWeight(3);
     //circle(0, 0, this.size + sin(frameCount * 0.1) * 2);
+    let bounceY = 0;
+    
+    if (frameCount - this.startFrame < this.bounceDuration) {
+      bounceY = sin(frameCount * 0.15) * 8; 
+    } else {
+      bounceY = 0;
+    }
     push();
     rotate(radians(this.heading));
     rotate(this.emojiAdjustAngle);
-    translate(0, -12);
+    translate(0, -12+bounceY);
     textAlign(CENTER, CENTER);
+    fill(255, 255, 255, 180);
+    noStroke();
+    circle(0, 0, 15); 
     let ctx = drawingContext;
     ctx.shadowBlur = 20;        
     ctx.shadowColor = 'yellow';  
 
     textAlign(CENTER, CENTER);
-    textSize(35);
+    textSize(40);
     text("🪡", 0, 0);
+    ctx.shadowBlur = 0;
     pop();
     fill(255, 0, 0);
     noStroke();

@@ -51,7 +51,7 @@ let mappa_options = {
 //icon imgs
 function preload() {
   for (let i = 1; i <= 29; i++) imgs.push(loadImage("assets/" + i + ".JPG"));
-  sound1 = loadSound("assets/stich.mp3");
+  //sound1 = loadSound("assets/stich.mp3");
 }
 
 function setup() {

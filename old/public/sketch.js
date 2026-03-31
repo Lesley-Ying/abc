@@ -124,6 +124,8 @@ function setup() {
     window.visualViewport.addEventListener("scroll", updateUILayout);
     updateUILayout();
   }
+
+  imgs = shuffle(imgs);
 }
 
 function draw() {
@@ -225,8 +227,8 @@ class MyPoint {
     this.emojiAdjustAngle = radians(45);
   }
   update() {
-    this.x = lerp(this.x, this.goalX, 0.2);
-    this.y = lerp(this.y, this.goalY, 0.2);
+    this.x = this.goalX; // lerp(this.x, this.goalX, 0.2);
+    this.y = this.goalY; //lerp(this.y, this.goalY, 0.2);
   }
   updateHeading(h) {
     this.heading = h;
@@ -255,7 +257,7 @@ class MyPoint {
     noStroke();
     textAlign(LEFT);
     textSize(10);
-    text("±" + nf(this.accuracy, 1, 1) + "m", diameter / 2 + 5, 0);
+    //text("±" + nf(this.accuracy, 1, 1) + "m", diameter / 2 + 5, 0);
     pop();
   }
 }
@@ -621,6 +623,7 @@ function shareAllGroups() {
       .then((r) => r.json())
       .then((data) => {
         if (data.ok) console.log("Kite sent to sky screen!", data.kite.id);
+        window.open("sky.html", "_self");
       })
       .catch((err) => console.error("Failed to send kite:", err));
 
@@ -628,8 +631,6 @@ function shareAllGroups() {
   }
 
   if (sent == 0) alert("Stitch some pieces together first!");
-
-  window.open("sky.html", "_self");
 }
 
 function getGroupOf(c) {
@@ -730,5 +731,5 @@ function updateUILayout() {
 }
 
 function windowResized() {
-  resizeCanvas(windowWidth, windowHeight);
+  //resizeCanvas(windowWidth, windowHeight);
 }

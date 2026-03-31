@@ -224,7 +224,7 @@ class MyPoint {
     this.col = color(170, 240, 190);
     this.accuracy = 0;
     this.heading = 0;
-    this.emojiAdjustAngle = radians(45);
+    this.emojiAdjustAngle = 0;
   }
   update() {
     this.x = this.goalX; // lerp(this.x, this.goalX, 0.2);
@@ -240,17 +240,17 @@ class MyPoint {
     stroke(255, 0, 0, 80);
     strokeWeight(1);
     let diameter = 2 * metersToPixel(this.accuracy, currentLatitude);
-    circle(0, 0, diameter);
+    //circle(0, 0, diameter);
     fill(this.col);
     stroke("pink");
     strokeWeight(3);
-    circle(0, 0, this.size + sin(frameCount * 0.1) * 2);
+    //circle(0, 0, this.size + sin(frameCount * 0.1) * 2);
     push();
     rotate(radians(this.heading));
     rotate(this.emojiAdjustAngle);
     translate(0, -12);
     textAlign(CENTER, CENTER);
-    textSize(26);
+    textSize(30);
     text("🪡", 0, 0);
     pop();
     fill(255, 0, 0);
@@ -347,8 +347,8 @@ function spawnCloths(lat, lng) {
   clusterGroups = [];
   let MIN_CENTER_M = 18;
   let MIN_RING_M = 10;
-  let MAX_CLOTHS = 30; // updated to match total number of images
-  let MAX_RING_M = 50;
+  let MAX_CLOTHS = 50; // updated to match total number of images
+  let MAX_RING_M = 150;
   let degLat = 1 / 111000;
   let degLng = 1 / (111000 * Math.cos((lat * Math.PI) / 180));
 

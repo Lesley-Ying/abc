@@ -480,8 +480,8 @@ function wouldOverlap(a, b, vec) {
   let bR = b.pos.x + b.w / 2;
   let bT = b.pos.y - b.h / 2;
   let bB = b.pos.y + b.h / 2;
-    //AABB
-    //if one of these four cons turns true, it means a can keep moving, so return fause
+  //AABB
+  //if one of these four cons turns true, it means a can keep moving, so return fause
   return !(aR <= bL || aL >= bR || aB <= bT || aT >= bB);
 }
 
@@ -489,22 +489,22 @@ function wouldOverlap(a, b, vec) {
 //when a is going to hit b, snap to edge
 //basically just smooth the animation
 function snapToEdge(movingGroup, clothA, clothB, moveVector) {
-  let snapDistance = createVector(0, 0); 
+  let snapDistance = createVector(0, 0);
   let a = {
-    left:   clothA.pos.x - clothA.w / 2,
-    right:  clothA.pos.x + clothA.w / 2,
-    top:    clothA.pos.y - clothA.h / 2,
+    left: clothA.pos.x - clothA.w / 2,
+    right: clothA.pos.x + clothA.w / 2,
+    top: clothA.pos.y - clothA.h / 2,
     bottom: clothA.pos.y + clothA.h / 2
   };
-  
+
   let b = {
-    left:   clothB.pos.x - clothB.w / 2,
-    right:  clothB.pos.x + clothB.w / 2,
-    top:    clothB.pos.y - clothB.h / 2,
+    left: clothB.pos.x - clothB.w / 2,
+    right: clothB.pos.x + clothB.w / 2,
+    top: clothB.pos.y - clothB.h / 2,
     bottom: clothB.pos.y + clothB.h / 2
   };
 
-  
+
   if (abs(moveVector.x) >= abs(moveVector.y)) {
     // horizontal
     if (moveVector.x > 0) {
@@ -525,8 +525,8 @@ function snapToEdge(movingGroup, clothA, clothB, moveVector) {
     }
   }
   for (let member of movingGroup) {
-    member.pos.add(snapDistance); 
-    member.updateLatLng();        
+    member.pos.add(snapDistance);
+    member.updateLatLng();
   }
 }
 
@@ -539,7 +539,14 @@ function findPlace(g1, g2, cA, cB) {
   let dy = cA.pos.y - cB.pos.y;
 
   if (abs(dx) > abs(dy)) {
-    let stitchX = dx > 0 ? b1.l : b1.r;
+
+    let stitchX;
+    if (dx > 0) {
+      stitchX = b1.l;
+    } else {
+      stitchX = b1.r;
+    }
+
     let intersectTop = max(b1.t, b2.t);
     let intersectBottom = min(b1.b, b2.b);
     let edgeLength = intersectBottom - intersectTop;
@@ -554,7 +561,13 @@ function findPlace(g1, g2, cA, cB) {
       sd.points.push(p5.Vector.sub(createVector(stitchX, py), cA.pos));
     }
   } else {
-    let stitchY = dy > 0 ? b1.t : b1.b;
+    let stitchY;
+    if (dx > 0) {
+      stitchY = b1.t;
+    } else {
+      stitchY = b1.b;
+    }
+
     let intersectLeft = max(b1.l, b2.l);
     let intersectRight = min(b1.r, b2.r);
     let edgeWidth = intersectRight - intersectLeft;
@@ -568,12 +581,12 @@ function findPlace(g1, g2, cA, cB) {
     }
   }
 
-  if (sd.points.length === 0) {
+  if (sd.points.length == 0) {
     sd.points.push(createVector(0, 0));
   }
 
   permanentStitches.push(sd);
-
+  //combine the group
   let newGroup = g1.concat(g2);
   clusterGroups = clusterGroups.filter((g) => g !== g1 && g !== g2);
   clusterGroups.push(newGroup);
@@ -704,11 +717,11 @@ function updateMapContent() {
 
 function drawUI() {
   let statusTip = document.getElementById("stitching-status");
-  let progressUI = document.getElementById("progress-ui"); 
+  let progressUI = document.getElementById("progress-ui");
   let progressFill = document.getElementById("progress-fill");
   let progressText = document.getElementById("progress-text");
 
-  if (!statusTip || !progressUI) return; 
+  if (!statusTip || !progressUI) return;
 
   if (activeStitch) {
     statusTip.style.display = "block";

@@ -141,7 +141,7 @@ function draw() {
     myMap.map.setMaxZoom(18);
     myMap.map.scrollWheelZoom.disable();
     myMap.map.doubleClickZoom.disable();
-    myMap.map.dragging.disable();
+    //myMap.map.dragging.disable();
     myMap.map.touchZoom.disable();
     zoomLocked = true;
   }
@@ -257,7 +257,7 @@ class MyPoint {
     push();
     rotate(radians(this.heading));
     rotate(this.emojiAdjustAngle);
-    translate(0, -12+bounceY);
+    translate(0, -12);
     textAlign(CENTER, CENTER);
     fill(255, 255, 255, 180);
     noStroke();

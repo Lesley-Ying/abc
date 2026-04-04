@@ -26,7 +26,6 @@ console.log("Server started: Kite data has been cleared.");
 
 let currentlyConnected = [];
 
-//does kite.json exist
 if (!fs.existsSync(KITES_FILE)) {
   fs.writeFileSync(KITES_FILE, JSON.stringify([]));
 }

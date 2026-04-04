@@ -385,7 +385,7 @@ function spawnCloths(lat, lng) {
     if (!placed.some((p) => distM(candidate, p) < MIN_CENTER_M)) {
       placed.push(candidate);
       cloths.push(new Cloth(candidate.lat, candidate.lng, placed.length - 1));
-      clusterGroups.push([cloths[cloths.length - 1]]);//!every cloth is a group itself
+      clusterGroups.push([cloths[cloths.length - 1]]);
     }
   }
 }

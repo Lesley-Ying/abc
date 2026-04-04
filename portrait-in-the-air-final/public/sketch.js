@@ -678,40 +678,12 @@ function updateMapContent() {
 }
 
 function drawUI() {
-  // if (stitchCount > 0 || currentGroupPair.length > 0) {
-  //   let bw = 150,
-  //     bh = 10,
-  //     x = 20,
-  //     y = 20;
-  //   noFill();
-  //   stroke(200);
-  //   strokeWeight(1);
-  //   rectMode(CORNER);
-  //   rect(x, y, bw, bh, 5);
-  //   if (stitchCount > 0) {
-  //     noStroke();
-  //     fill(30, 80, 50, 200);
-  //     rect(x, y, (stitchCount / 4) * bw, bh, 5);
-  //   }
-  //   fill(120);
-  //   noStroke();
-  //   textAlign(LEFT);
-  //   textSize(13);
-  //   text("sewing: " + nf((stitchCount / 4) * 100, 1, 0) + "%", x, y + 25);
-  // }
-  // if (activeStitch) {
-  //   fill(30, 80, 50, 180);
-  //   noStroke();
-  //   textAlign(CENTER);
-  //   textSize(13);
-  //   text("✦ stitching…", width / 2, height - 30);
-  // }
   let statusTip = document.getElementById("stitching-status");
-  let progressUI = document.getElementById("progress-ui"); // 确保是这个 ID
+  let progressUI = document.getElementById("progress-ui"); 
   let progressFill = document.getElementById("progress-fill");
   let progressText = document.getElementById("progress-text");
 
-  if (!statusTip || !progressUI) return; // 防错
+  if (!statusTip || !progressUI) return; 
 
   if (activeStitch) {
     statusTip.style.display = "block";
@@ -736,14 +708,12 @@ function updateUILayout() {
 
   let scale = 1 / vv.scale;
 
-  // 同步 UI 层到当前视口左上角
   uiLayer.style.transformOrigin = "0 0";
   uiLayer.style.transform = `translate(${vv.offsetLeft}px, ${vv.offsetTop}px) scale(${scale})`;
 
   let targetTop = vv.height * vv.scale - 60;
   btn.style.top = targetTop + "px";
 
-  // 保持容器填满（防穿透）
   uiLayer.style.width = vv.width * vv.scale + "px";
   uiLayer.style.height = vv.height * vv.scale + "px";
 }

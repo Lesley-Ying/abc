@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+
+    <title>ScratchScratch</title>
+    <link rel="stylesheet" href="style.css" />
+
+    <script src="lib/p5.js"></script>
+    <script src="lib/p5.sound.js"></script>
+    <script src="socket.io/socket.io.js"></script>
+
+    <script src="script.js" defer></script>
+    <script src="requestOrientation.js" defer></script>
+  </head>
+  <body>
+    <div id="entry-page">
+      <div id="entry-content">
+        <p id="entry-prompt">choose your finger</p>
+        <div id="finger-options">
+          <button class="finger-btn" data-skin="light1">👆</button>
+          <button class="finger-btn" data-skin="light2">👆🏻</button>
+          <button class="finger-btn" data-skin="medium-light">👆🏼</button>
+          <button class="finger-btn" data-skin="medium">👆🏽</button>
+          <button class="finger-btn" data-skin="medium-dark">👆🏾</button>
+          <button class="finger-btn" data-skin="dark">👆🏿</button>
+        </div>
+      <button
+        id="testButton"
+        disabled
+        onclick="requestOrientation()"
+      >
+        ScratchScratch
+      </button>
+    </div>
+    </div>
+
+    <button
+      id="lock-btn"
+      style="
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 0%;
+        padding: 4px 8px;
+
+        font-family: 'Courier New', Courier;
+
+        font-size: 15px;
+        color: black;
+      "
+    >
+      walk around
+    </button>
+    <!-- <button id="left">LEFT</button> -->
+    <!-- <button id="right">RIGHT</button> -->
+
+    <!-- <div class="main-wrapper"> -->
+    <!-- <h1>Project Title</h1> -->
+
+    <!-- the following div will contain the p5 canvas. -->
+    <div id="p5-canvas-container">
+      <!-- p5 canvas will be appended here. -->
+    </div>
+
+    <!-- <p>Project Description</p> -->
+    <!-- </div> -->
+  </body>
+</html>

@@ -1,0 +1,25 @@
+body{
+    margin: 0;
+    /* overflow: hidden; */
+}
+
+
+
+.main-wrapper{
+    width:100%;
+    margin-top: 50px;
+    height: 100vh;
+
+
+}
+
+
+
+button{
+    /* width: 50%;
+    height: 35px;
+    border-radius: 20px; */
+    z-index: 20;
+ 
+}
+

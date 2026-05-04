@@ -110,12 +110,12 @@ function setup() {
   // for (let i = 0; i < cols; i++) {
   //   depthMap[i] = new Array(rows).fill(0);
   // }
-  for (let i = 0; i < cols; i++) {
-    depthMap[i] = [];
-    for (let j = 0; j < rows; j++) {
-      depthMap[i][j] = 0;
-    }
-  }
+  // for (let i = 0; i < cols; i++) {
+  //   depthMap[i] = [];
+  //   for (let j = 0; j < rows; j++) {
+  //     depthMap[i][j] = 0;
+  //   }
+  // }
   //the server will only adopt the first user who connect
   // socket.emit("map-init", { cols, rows });
 
@@ -335,11 +335,18 @@ function scratchAt(tx, ty, moveDist) {
       if (distance < effectiveRadius) {
         let key = `${ni}_${nj}`;
         let currentVal = depthMap[key] || 0;
+        if (currentVal >= 255) continue;
+        let hardness = 1.0;
+        if(currentVal>=80 &&currentVal<=180){
+          hardness = 0.8; 
+        }else if (currentVal > 180 && currentVal <= 255) {
+          hardness = 0.6; 
+        } 
 
         let damage = map(distance, 0, effectiveRadius, 3.5, 1) * random(0.1, 2);
         let crackNoise = noise(ni * 0.2, nj * 0.2);
 
-        let newVal = Math.floor(currentVal + damage * crackNoise * distFactor);
+        let newVal = Math.floor(currentVal + damage * crackNoise * distFactor* hardness);
 
         if (newVal > currentVal) {
           depthMap[key] = newVal;

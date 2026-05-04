@@ -203,7 +203,8 @@ function draw() {
   }
 
   pop();
-  text("offset: " + nfc(mapXoffset, 1), 20, 50);
+  
+  text(": " + nfc(mapXoffset, 1), 15, 30);
 
   //for laptop debugging
   if (mouseIsPressed) {

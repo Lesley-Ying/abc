@@ -1,3 +1,9 @@
+let params = new URLSearchParams(document.location.search);
+let restarted = params.get("restarted"); // is the string "Jonathan"
+// alert(restarted)
+console.log("param is ", restarted)
+
+
 
 let socket;
 if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
@@ -86,6 +92,10 @@ function startSocketThings() {
 
 }
 
+
+
+
+
 function handleOrientation(eventData) {
 
   if (!initialized) {
@@ -108,6 +118,7 @@ function handleOrientation(eventData) {
   alpha = eventData.alpha;
   beta = eventData.beta;
   gamma = eventData.gamma;
+  console.log(alpha)
 
 }
 
@@ -131,6 +142,9 @@ function setup() {
   candleHeight = maxCandleHeight;
   base_y = rows - 10;
   collectiveSound.onended(loopCollectiveWithFade);
+
+
+ 
 }
 
 function draw() {
@@ -172,7 +186,22 @@ function drawCandleRole() {
         // document.querySelector("#sound"+(sIdx+1)).pause();
 
       }
-      socket.disconnect();
+      // socket.disconnect();
+      setTimeout(function(){
+        // const urlWithoutParams = window.location.origin + window.location.pathname;
+        // console.log(urlWithoutParams); 
+        // window.location.href = urlWithoutParams +"?restarted=1";
+          isBurning = false;
+          warmBrightness = 0;
+          candleHeight = maxCandleHeight
+          isExtinguished = false;
+          // betaReady = false;
+          candleVisible = true;
+          audioStarted = false;
+          collectiveVol = 1.0;
+
+
+      }, 2000)
       return;
     }
   }

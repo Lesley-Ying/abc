@@ -21,6 +21,7 @@ const io = new Server(HTTPSserver); // start socket io
 app.use(express.static("public"));
 
 let serverDepthMap = {};
+
 let needsSave=false;
 // let dataText=fs.readFileSync("scratch.json","utf8");
 // serverDepthMap=JSON.parse(dataText);

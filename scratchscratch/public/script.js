@@ -173,6 +173,7 @@ function draw() {
     localStorage.setItem("mapXoffset", mapXoffset);
     lastSaveTime = now;
   }
+  
   if (!isLocked && abs(gamma) > 2) {
     if (!isPlaying) {
       walkingsound.loop();
@@ -187,6 +188,15 @@ function draw() {
       isPlaying = false;
     }
   }
+  //for laptop
+  if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) { 
+    moveX = -2; 
+    mapXoffset -= moveX;
+  }else if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) { 
+    moveX = 2;
+    mapXoffset -= moveX;
+  }
+
   push();
   translate(mapXoffset, mapYoffset);
   image(wallTexture, -extraW, 0);

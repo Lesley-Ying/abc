@@ -123,8 +123,6 @@ io.on('connection', (socket) => {
             if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
         }
 
-       
-
     })
 
 })

@@ -30,7 +30,7 @@ let candles=[];
 let fire;
 let soundCount = 5; // total number of audio files
 let soundCounter = 0; // cycles through 0->6
-let fireBetaReady = false;
+let fireBetaReady = true;
 
 
 
@@ -91,7 +91,7 @@ io.on('connection', (socket) => {
        }
        //check if all ready
     //    let allReady=candles.length>0 && candles.every(c=>c.betaReady);
-    let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
+    let allReady = candles.length > 0 && candles.every(c => c.betaReady);
       if(fire){
         io.to(fire).emit("all-candles-ready", {ready: allReady});
       }
@@ -122,7 +122,7 @@ io.on('connection', (socket) => {
         console.log("someone disconnected", socket.id);
         if (socket.id == fire) {
             fire = undefined;
-            fireBetaReady = false; 
+           
         } else {
             candles = candles.filter(c => c.id !== socket.id);
             //not used

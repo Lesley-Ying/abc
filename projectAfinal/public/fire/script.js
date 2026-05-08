@@ -74,13 +74,13 @@ function handleOrientation(eventData) {
     startSocketThings();
     initialized = true;
   }
-  alpha = eventData.alpha;
-  beta = eventData.beta;
-  gamma = eventData.gamma;
-  if (initialized) {
-    let fireReady = (beta >= 70 && beta <= 100);
-    socket.emit("fire-beta-status", { ready: fireReady });
-}
+//   alpha = eventData.alpha;
+//   beta = eventData.beta;
+//   gamma = eventData.gamma;
+//   if (initialized) {
+//     let fireReady = (beta >= 70 && beta <= 100);
+//     socket.emit("fire-beta-status", { ready: fireReady });
+// }
 }
 
 

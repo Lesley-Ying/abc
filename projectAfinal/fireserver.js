@@ -30,9 +30,6 @@ let candles=[];
 let fire;
 let soundCount = 5; // total number of audio files
 let soundCounter = 0; // cycles through 0->6
-let fireBetaReady = true;
-
-
 
 
 
@@ -70,14 +67,6 @@ io.on('connection', (socket) => {
     //     //broadcast: sending this message to everyone except the one who trigger this event
     //     socket.broadcast.emit("melt")
     // })
-    socket.on("fire-beta-status", function(data) {
-        fireBetaReady = data.ready;
-        console.log("fireready");
-        let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
-        if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
-        if (allReady) io.emit("warm-up", { brightness: 1 });
-       
-    });
 
     //server check if all cand;e-beta are ready, if yes, fire fall
     socket.on("beta-status", function(data){
@@ -90,8 +79,7 @@ io.on('connection', (socket) => {
         candle.betaReady=data.ready;
        }
        //check if all ready
-    //    let allReady=candles.length>0 && candles.every(c=>c.betaReady);
-    let allReady = candles.length > 0 && candles.every(c => c.betaReady);
+       let allReady=candles.length>0 && candles.every(c=>c.betaReady);
       if(fire){
         io.to(fire).emit("all-candles-ready", {ready: allReady});
       }
@@ -122,7 +110,9 @@ io.on('connection', (socket) => {
         console.log("someone disconnected", socket.id);
         if (socket.id == fire) {
             fire = undefined;
-           
+            console.log("fire disconnected");
+            // notify candles fire is gone
+            io.emit("fire-gone");
         } else {
             candles = candles.filter(c => c.id !== socket.id);
             //not used
@@ -145,8 +135,3 @@ io.on('connection', (socket) => {
 HTTPSserver.listen(portHTTPS, function (req, res) {
     console.log("HTTPS Server started at port", portHTTPS);
 });
-
-
-
-
-

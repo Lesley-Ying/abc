@@ -1,7 +1,7 @@
 // from: https://dev.to/li/how-to-requestpermission-for-devicemotion-and-deviceorientation-events-in-ios-13-46g2
 function requestOrientation() {
     // feature detect
-    // userStartAudio();
+    userStartAudio();
     if (typeof DeviceOrientationEvent.requestPermission === 'function') {
         DeviceOrientationEvent.requestPermission()
         .then(permissionState => {

@@ -139,6 +139,7 @@ function setup() {
   frameRate(14);
   textFont('Courier New');
   textSize(8);
+  strokeWeight(2);
   candleHeight = maxCandleHeight;
   base_y = rows - 10;
   collectiveSound.onended(loopCollectiveWithFade);

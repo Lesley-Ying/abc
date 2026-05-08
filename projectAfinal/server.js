@@ -30,6 +30,10 @@ let candles=[];
 let fire;
 let soundCount = 5; // total number of audio files
 let soundCounter = 0; // cycles through 0->6
+let fireBetaReady = false;
+let fireBetaReadyTimer = null; // 计时器
+let fireBetaConfirmed = false; // 持续两秒后才算真的ready
+
 
 
 
@@ -67,6 +71,35 @@ io.on('connection', (socket) => {
     //     //broadcast: sending this message to everyone except the one who trigger this event
     //     socket.broadcast.emit("melt")
     // })
+    socket.on("fire-beta-status", function(data) {
+        // fireBetaReady = data.ready;
+        // let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
+        // if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
+        // if (allReady) io.emit("warm-up", { brightness: 1 });
+        if (data.ready) {
+            // 开始计时，如果还没有计时器的话
+            if (!fireBetaReadyTimer) {
+                fireBetaReadyTimer = setTimeout(function() {
+                    fireBetaConfirmed = true;
+                    console.log("fire beta confirmed ready (2s stable)");
+                    let allReady = fireBetaConfirmed && candles.length > 0 && candles.every(c => c.betaReady);
+                    if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
+                    if (allReady) io.emit("warm-up", { brightness: 1 });
+                }, 2000);
+            }
+        } else {
+            // beta 离开范围，取消计时器，重置confirmed
+            if (fireBetaReadyTimer) {
+                clearTimeout(fireBetaReadyTimer);
+                fireBetaReadyTimer = null;
+            }
+            if (fireBetaConfirmed) {
+                fireBetaConfirmed = false;
+                console.log("fire beta no longer ready");
+                if (fire) io.to(fire).emit("all-candles-ready", { ready: false });
+            }
+        }
+    });
 
     //server check if all cand;e-beta are ready, if yes, fire fall
     socket.on("beta-status", function(data){
@@ -79,7 +112,8 @@ io.on('connection', (socket) => {
         candle.betaReady=data.ready;
        }
        //check if all ready
-       let allReady=candles.length>0 && candles.every(c=>c.betaReady);
+    //    let allReady=candles.length>0 && candles.every(c=>c.betaReady);
+    let allReady = fireBetaConfirmed && candles.length > 0 && candles.every(c => c.betaReady);
       if(fire){
         io.to(fire).emit("all-candles-ready", {ready: allReady});
       }
@@ -95,9 +129,9 @@ io.on('connection', (socket) => {
         console.log("burn candle");
         
         candles.forEach(function(c){
-            let meltRate=0.265;
+            let meltRate=0.154;
             if(c.soundIdx==2){
-                meltRate=0.23;
+                meltRate=0.135;
             }
             io.to(c.id).emit("burn", {meltRate:meltRate});
            
@@ -110,6 +144,12 @@ io.on('connection', (socket) => {
         console.log("someone disconnected", socket.id);
         if (socket.id == fire) {
             fire = undefined;
+            fireBetaReady = false; 
+            fireBetaConfirmed = false;
+    if (fireBetaReadyTimer) {
+        clearTimeout(fireBetaReadyTimer);
+        fireBetaReadyTimer = null;
+    }
             console.log("fire disconnected");
             // notify candles fire is gone
             io.emit("fire-gone");

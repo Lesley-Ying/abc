@@ -22,6 +22,7 @@ let fireDropping = false;     // fire is in drop phase (after 3s)
 let fireDropY = 0;            // extra Y offset during drop
 let trans = 0;
 
+
 // burnButton.addEventListener("click", function () {
 //   socket.emit("startSound")
 // })
@@ -62,6 +63,7 @@ function handleOrientation(eventData) {
     console.log("device orientation works");
 
     document.querySelector("#requestOrientationButton").remove();
+    document.querySelector("#hint").style.display = 'none';
 
     // if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
     //   socket = io({ path: "/lesley/port-4290/socket.io" });  // e.g. '/leon/port-4100/socket.io' or '/socket.io'
@@ -75,6 +77,10 @@ function handleOrientation(eventData) {
   alpha = eventData.alpha;
   beta = eventData.beta;
   gamma = eventData.gamma;
+  if (initialized) {
+    let fireReady = (beta >= 70 && beta <= 100);
+    socket.emit("fire-beta-status", { ready: fireReady });
+}
 }
 
 
@@ -214,9 +220,6 @@ function windowResized() {
   fireX = width / 2;
   fireY = height / 2;
 }
-
-
-
 
 
 

@@ -72,33 +72,11 @@ io.on('connection', (socket) => {
     //     socket.broadcast.emit("melt")
     // })
     socket.on("fire-beta-status", function(data) {
-        // fireBetaReady = data.ready;
-        // let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
-        // if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
-        // if (allReady) io.emit("warm-up", { brightness: 1 });
-        if (data.ready) {
-            // 开始计时，如果还没有计时器的话
-            if (!fireBetaReadyTimer) {
-                fireBetaReadyTimer = setTimeout(function() {
-                    fireBetaConfirmed = true;
-                    console.log("fire beta confirmed ready (2s stable)");
-                    let allReady = fireBetaConfirmed && candles.length > 0 && candles.every(c => c.betaReady);
-                    if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
-                    if (allReady) io.emit("warm-up", { brightness: 1 });
-                }, 2000);
-            }
-        } else {
-            // beta 离开范围，取消计时器，重置confirmed
-            if (fireBetaReadyTimer) {
-                clearTimeout(fireBetaReadyTimer);
-                fireBetaReadyTimer = null;
-            }
-            if (fireBetaConfirmed) {
-                fireBetaConfirmed = false;
-                console.log("fire beta no longer ready");
-                if (fire) io.to(fire).emit("all-candles-ready", { ready: false });
-            }
-        }
+        fireBetaReady = data.ready;
+        let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
+        if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
+        if (allReady) io.emit("warm-up", { brightness: 1 });
+       
     });
 
     //server check if all cand;e-beta are ready, if yes, fire fall

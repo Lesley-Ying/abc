@@ -72,6 +72,7 @@ io.on('connection', (socket) => {
     // })
     socket.on("fire-beta-status", function(data) {
         fireBetaReady = data.ready;
+        console.log("fireready");
         let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
         if (fire) io.to(fire).emit("all-candles-ready", { ready: allReady });
         if (allReady) io.emit("warm-up", { brightness: 1 });
@@ -90,7 +91,7 @@ io.on('connection', (socket) => {
        }
        //check if all ready
     //    let allReady=candles.length>0 && candles.every(c=>c.betaReady);
-    let allReady = fireBetaConfirmed && candles.length > 0 && candles.every(c => c.betaReady);
+    let allReady = fireBetaReady && candles.length > 0 && candles.every(c => c.betaReady);
       if(fire){
         io.to(fire).emit("all-candles-ready", {ready: allReady});
       }
@@ -122,14 +123,6 @@ io.on('connection', (socket) => {
         if (socket.id == fire) {
             fire = undefined;
             fireBetaReady = false; 
-            fireBetaConfirmed = false;
-    if (fireBetaReadyTimer) {
-        clearTimeout(fireBetaReadyTimer);
-        fireBetaReadyTimer = null;
-    }
-            console.log("fire disconnected");
-            // notify candles fire is gone
-            io.emit("fire-gone");
         } else {
             candles = candles.filter(c => c.id !== socket.id);
             //not used

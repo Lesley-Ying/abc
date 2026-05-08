@@ -31,8 +31,7 @@ let fire;
 let soundCount = 5; // total number of audio files
 let soundCounter = 0; // cycles through 0->6
 let fireBetaReady = false;
-let fireBetaReadyTimer = null; // 计时器
-let fireBetaConfirmed = false; // 持续两秒后才算真的ready
+
 
 
 

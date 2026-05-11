@@ -77,11 +77,12 @@ io.on("connection", (socket) => {
     
     
   });
-  socket.on("set-finger", (data) => {
-    socket.fingerEmoji = data.emoji; 
-  });
   
-  socket.on("finger-move", (data) => {
+  socket.on("set-finger", function (data) {
+    socket.fingerEmoji = data.emoji;
+  });
+
+  socket.on("finger-move", function (data) {
     socket.broadcast.emit("finger-move", {
       id: socket.id,
       x: data.x,
@@ -89,15 +90,16 @@ io.on("connection", (socket) => {
       emoji: data.emoji
     });
   });
-  
-  socket.on("finger-end", () => {
+
+  socket.on("finger-end", function () {
     socket.broadcast.emit("finger-end", { id: socket.id });
   });
-  
+
   socket.on("disconnect", function () {
     console.log("disconnected", socket.id);
   });
 });
+
 
 //maybe this works for less pressure on server...
 setInterval(() => {

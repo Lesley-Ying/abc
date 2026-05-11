@@ -106,7 +106,7 @@ function handleOrientation(eventData) {
       getAudioContext().resume();
     }
     document.querySelector("#requestOrientationButton").remove();
-
+    
     // if (location.hostname.toLowerCase().startsWith('browsercircus') || location.hostname.toLowerCase().startsWith('www')) {
     //   socket = io({ path: "/lesley/port-4290/socket.io" });  // e.g. '/leon/port-4100/socket.io' or '/socket.io'
     // } else {
